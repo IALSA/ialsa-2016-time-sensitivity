@@ -27,49 +27,50 @@ baseSize <- 12
 
 # ---- load-data ---------------------------------------------------------------
 path_outputs <- list.files(path_folder,pattern = ".out$",full.names = T, recursive = T)
-stencil <- readr::read_csv("./data/shared/raw/table-stencil-octo-2.csv")
+# stencil <- readr::read_csv("./data/shared/raw/table-stencil-octo-2.csv")
+stencil <- readr::read_csv("./data/shared/raw/table-stencil-octo-3.csv") # shorter names
 
 
 path <- path_outputs#[639]
 # grep("./output/studies/octo/info/u2_145_aef_info.out",path,value=F)
 # ---- assemble-catalog -------------------------------
 # create catalog list
-# ls_catalog <- list()
-# regex_1 <- "^(u1|u2)_(\\d+)_(\\w+)_(\\w+)"
-# for(i in seq_along(path)){
-#   # i <- 1
-#   model_name <- gsub(".out$","",basename(path[i]))
-#   model_result <- MplusAutomation::readModels(path[i])
-#   if(length(model_result$errors)==0L){
-#      ls_temp <- list(
-#       "model_number" =  gsub(regex_1, "\\1", model_name),
-#       "wave_set"     =  gsub(regex_1, "\\2", model_name),
-#       "model_type"   =  gsub(regex_1, "\\3", model_name),
-#       "process"      =  gsub(regex_1, "\\4", model_name),
-#       "table"        =  get_estimate_table(model_result),
-#       "N"            = model_result$summaries$Observations,
-#       "parameters"   = model_result$summaries$Parameters,
-#       "AIC"          = model_result$summaries$AIC,
-#       "BIC"          = model_result$summaries$BIC,
-#       "path"         =  path[i]
-#     )
-#   } else{
-#     ls_temp <- list(
-#       "model_number" = gsub(regex_1, "\\1", model_name),
-#       "wave_set"     = gsub(regex_1, "\\2", model_name),
-#       "model_type"   = gsub(regex_1, "\\3", model_name),
-#       "process"      = gsub(regex_1, "\\4", model_name),
-#       "table"        = NA,
-#       "N"            = NA,
-#       "parameters"   = NA,
-#       "AIC"          = NA,
-#       "BIC"          = NA,
-#       "path"         = NA
-#     )
-#   }
-#    ls_catalog[[model_name]] <- ls_temp
-# }
-# saveRDS(ls_catalog,"./data/shared/derived/ls_catalog.rds")
+ls_catalog <- list()
+regex_1 <- "^(u1|u2)_(\\d+)_(\\w+)_(\\w+)"
+for(i in seq_along(path)){
+  # i <- 1
+  model_name <- gsub(".out$","",basename(path[i]))
+  model_result <- MplusAutomation::readModels(path[i])
+  if(length(model_result$errors)==0L){
+     ls_temp <- list(
+      "model_number" =  gsub(regex_1, "\\1", model_name),
+      "wave_set"     =  gsub(regex_1, "\\2", model_name),
+      "model_type"   =  gsub(regex_1, "\\3", model_name),
+      "process"      =  gsub(regex_1, "\\4", model_name),
+      "table"        =  get_estimate_table(model_result),
+      "N"            = model_result$summaries$Observations,
+      "parameters"   = model_result$summaries$Parameters,
+      "AIC"          = model_result$summaries$AIC,
+      "BIC"          = model_result$summaries$BIC,
+      "path"         =  path[i]
+    )
+  } else{
+    ls_temp <- list(
+      "model_number" = gsub(regex_1, "\\1", model_name),
+      "wave_set"     = gsub(regex_1, "\\2", model_name),
+      "model_type"   = gsub(regex_1, "\\3", model_name),
+      "process"      = gsub(regex_1, "\\4", model_name),
+      "table"        = NA,
+      "N"            = NA,
+      "parameters"   = NA,
+      "AIC"          = NA,
+      "BIC"          = NA,
+      "path"         = NA
+    )
+  }
+   ls_catalog[[model_name]] <- ls_temp
+}
+saveRDS(ls_catalog,"./data/shared/derived/ls_catalog.rds")
 ls_catalog <- readRDS("./data/shared/derived/ls_catalog.rds")
 #
 ds_catalog <- plyr::ldply(ls_catalog, data.frame, .id = "model_name")

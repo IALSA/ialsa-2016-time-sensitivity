@@ -79,7 +79,7 @@ matrix_coef <- function(x,term_group,model_type, process){
     # legend = 1
   ) + theme(
     legend.position = "right",
-    strip.text.x = element_text(size=baseSize+3)
+    strip.text.x = element_text(size=baseSize+2)
     
   )
   pm
@@ -91,7 +91,7 @@ super_matrix <- function(x,model_type,process, folder_name,
   # x <- ds_catalog
   # model_type = "aefb"
   # process = "mmse"
-  # folder_name = folder
+  # folder_name = "./reports/model-examiner/graph2/"
   # height = 1200
   # width = 1400
   # res = 600
