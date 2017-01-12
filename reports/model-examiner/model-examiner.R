@@ -32,6 +32,28 @@ colors_wave_set <- c(
   ,"135"   = "#386cb0"
 )
 
+# ls_terms <- list(
+#   "level" = c("(R)-Intercept",
+#               "(F)-Intercept",
+#               "Baseline age",
+#               "Education",
+#               "Gender",
+#               "Systolic BP"),
+#   "linear"= c("(R)-Linear slope",
+#               "(F)-Linear slope",
+#               "Linear slope*Baseline age",
+#               "Linear slope*Education",
+#               "Linear slope*Gender", 
+#               "Linear slope*Systolic BP" ),
+#   "quadratic" = c( "(R)-Quadratic slope",
+#                    "(F)-Quadratic slope",
+#                    "Quadratic slope*Baseline age",
+#                    "Quadratic slope*Education",
+#                    "Quadratic slope*Gender",
+#                    "Quadratic slope*Systolic BP"  ),
+#   "error" = c("(R)-Error")
+# )
+
 ls_terms <- list(
   "level" = c("(R)-Intercept",
               "(F)-Intercept",
@@ -41,24 +63,25 @@ ls_terms <- list(
               "Systolic BP"),
   "linear"= c("(R)-Linear slope",
               "(F)-Linear slope",
-              "Linear slope*Baseline age",
-              "Linear slope*Education",
-              "Linear slope*Gender", 
-              "Linear slope*Systolic BP" ),
+              "L-slope*Baseline age",
+              "L-slope*Education",
+              "L-slope*Gender", 
+              "L-slope*Systolic BP" ),
   "quadratic" = c( "(R)-Quadratic slope",
                    "(F)-Quadratic slope",
-                   "Quadratic slope*Baseline age",
-                   "Quadratic slope*Education",
-                   "Quadratic slope*Gender",
-                   "Quadratic slope*Systolic BP"  ),
+                   "Q-slope*Baseline age",
+                   "Q-slope*Education",
+                   "Q-slope*Gender",
+                   "Q-slope*Systolic BP"  ),
   "error" = c("(R)-Error")
 )
+
 
 # ---- load-data ---------------------------------------------------------------
 ls_catalog <- readRDS("./data/shared/derived/ls_catalog.rds")
 ds_catalog <- readRDS("./data/shared/derived/catalog.rds")
 # stencil <- readr::read_csv("./data/shared/raw/table-stencil-octo.csv")
-stencil <- readr::read_csv("./data/shared/raw/table-stencil-octo-2.csv")
+stencil <- readr::read_csv("./data/shared/raw/table-stencil-octo-3.csv")
 
 # ---- inspect-data -------------------------------------------------------------
 ds_catalog %>% dplyr::glimpse()
@@ -109,7 +132,7 @@ ds_catalog <- ds_catalog %>%
 #     # wave_set     %in% c("12345","1234","123","135"),
 #     model_type   == "aefb",
 #     process      == "grip"
-#   ) %>% 
+#   ) %>%
 #   dplyr::mutate(
 #     term = label,
 #     estimate = est,
@@ -118,7 +141,17 @@ ds_catalog <- ds_catalog %>%
 #     sign = ifelse(pval<=.05,T,F)
 #   )
 
-super_matrix(ds_catalog,"aefb","mmse")
+
+# super_matrix(
+#   x           = ds_catalog %>% 
+#     dplyr::filter(wave_set %in% c("12345","1234","123","135")),
+#   model_type  = "aefb",
+#   process     = "mmse",
+#   folder_name = "./reports/model-examiner/graph2/",
+#   width       = 2800,
+#   height      = 2000,
+#   res         = 210
+# )
 
 
 # ---- dummy ------------------
