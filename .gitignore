@@ -63,3 +63,4 @@ manipulation/translator-support/outputs/grip-numbercomp/long-dataset.dat
 sandbox/pipeline-demo-1/outputs/generic-data/data-long.rds
 sandbox/pipeline-demo-1/outputs/generic-data/data-wide.rds
 data/shared/derived/ls_catalog.rds
+data/shared/derived/ls_catalog.rds
