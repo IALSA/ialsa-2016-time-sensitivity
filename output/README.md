@@ -1,0 +1,1 @@
+the folder `./output` contains the product of automatic estimation executed by scripts in `./estimation/`
