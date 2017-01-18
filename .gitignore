@@ -15,11 +15,7 @@
 /sandbox/syntax-creator/outputs/*/*.dat
 
 
-output/*
-output/*/*
-output/*/*/*
-output/*/*/*/*
-output/*/*/*/*/*
+
 
 # Dataset Exceptions
 !utility/package-dependency-list.csv
@@ -60,6 +56,7 @@ ialsa-2015-portland-stencil.Rproj
 manipulation/translator-support/outputs/grip-numbercomp/long-dataset.dat
 *.dat
 *.gh5
+*.inp
 sandbox/pipeline-demo-1/outputs/generic-data/data-long.rds
 sandbox/pipeline-demo-1/outputs/generic-data/data-wide.rds
 data/shared/derived/ls_catalog.rds
