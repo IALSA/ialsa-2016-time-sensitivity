@@ -1,0 +1,392 @@
+Mplus VERSION 7.3
+MUTHEN & MUTHEN
+12/17/2016   5:17 PM
+
+INPUT INSTRUCTIONS
+
+  TITLE:
+  Script produced from the prototype in ./sandbox/syntax-creator/
+  DATA:
+  File = wide-dataset.dat ;
+  VARIABLE:
+  NAMES are
+   Case PairID female age_c80 edu_c7 sbp_c167 smoke cardio diabetes dementia_ever
+      years_since_bl_01 years_since_bl_02 years_since_bl_03 years_since_bl_04
+      years_since_bl_05 pef_01 pef_02 pef_03 pef_04 pef_05 grip_01 grip_02 grip_03
+      grip_04 grip_05 gait_01 gait_02 gait_03 gait_04 gait_05 block_01 block_02
+      block_03 block_04 block_05 digitspanbackward_01 digitspanbackward_02
+      digitspanbackward_03 digitspanbackward_04 digitspanbackward_05
+      digitspanforward_01 digitspanforward_02 digitspanforward_03 digitspanforward_04
+      digitspanforward_05 symbol_01 symbol_02 symbol_03 symbol_04 symbol_05 prose_01
+      prose_02 prose_03 prose_04 prose_05 info_01 info_02 info_03 info_04 info_05
+      synonyms_01 synonyms_02 synonyms_03 synonyms_04 synonyms_05 psif_01 psif_02
+      psif_03 psif_04 psif_05 figure_01 figure_02 figure_03 figure_04 figure_05
+      mirrecall_01 mirrecall_02 mirrecall_03 mirrecall_04 mirrecall_05 mmse_01 mmse_02
+      mmse_03 mmse_04 mmse_05 mirnaming_01 mirnaming_02 mirnaming_03 mirnaming_04
+      mirnaming_05 mirrecog_01 mirrecog_02 mirrecog_03 mirrecog_04 mirrecog_05
+      clock_01 clock_02 clock_03 clock_04 clock_05
+  	;
+  Missing are all (-9999);
+  USEVARIABLES are
+  	!define the variables used in the analysis
+  	! covariates used in the model
+  age_c80	
+  	!estimated time points
+  time_01
+  time_03
+  time_05
+  	!modelled time points of process (A)
+  a_01
+  a_03
+  a_05
+  ;
+  TSCORES are
+  	!estimated time points
+  time_01
+  time_03
+  time_05;
+  CLUSTER = PairID;
+  SUBPOPULATION are
+  	!select a subset of observations
+  dementia_ever NE 1
+  ;
+  DEFINE:
+  	! assign variables to the process (A)
+  a_01 = symbol_01;
+  a_03 = symbol_03;
+  a_05 = symbol_05;
+  	!assign variables to time points
+  time_01 = years_since_bl_01;
+  time_03 = years_since_bl_03;
+  time_05 = years_since_bl_05;
+  	
+  ANALYSIS: TYPE = RANDOM COMPLEX;
+  COVERAGE=.00;
+  MODEL:
+  	!first-level equation
+  	! assign process (A) to time points
+  ia sa | a_01 AT time_01 ;
+  ia sa | a_03 AT time_03 ;
+  ia sa | a_05 AT time_05 ;
+  	!variance of the first-level terms
+  ia (v_ia);
+  sa (v_sa);
+  	!covariance among first-level terms
+  ia WITH sa (c_iasa);
+  	!second-level equation
+  ia sa ON age_c80;
+  	!residual covariance of process (A)
+  a_01 (res_a);
+  a_03 (res_a);
+  a_05 (res_a);	
+  SAVEDATA:
+  FILE is   u1_135_a_symbol_fscores.dat;
+  SAVE = FSCORES;
+  RESULTS are   u1_135_a_symbol_results.dat;
+  	
+  OUTPUT: sampstat cinterval;
+  PLOT: Type is Plot1 Plot2 Plot3;
+
+
+
+*** WARNING
+  Data set contains cases with missing on all variables except
+  x-variables.  These cases were not included in the analysis.
+  Number of cases with missing on all variables except x-variables:  210
+   1 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+
+Script produced from the prototype in ./sandbox/syntax-creator/
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                         364
+
+Number of dependent variables                                    3
+Number of independent variables                                  1
+Number of continuous latent variables                            2
+
+Observed dependent variables
+
+  Continuous
+   A_01        A_03        A_05
+
+Observed independent variables
+   AGE_C80
+
+Continuous latent variables
+   IA          SA
+
+Variables with special functions
+
+  Cluster variable      PAIRID
+  Weight variable       _WEIGHT
+
+  Time scores
+   TIME_01     TIME_03     TIME_05
+
+
+Estimator                                                      MLR
+Information matrix                                        OBSERVED
+Maximum number of iterations                                   100
+Convergence criterion                                    0.100D-05
+Maximum number of EM iterations                                500
+Convergence criteria for the EM algorithm
+  Loglikelihood change                                   0.100D-02
+  Relative loglikelihood change                          0.100D-05
+  Derivative                                             0.100D-03
+Minimum variance                                         0.100D-03
+Maximum number of steepest descent iterations                   20
+Maximum number of iterations for H1                           2000
+Convergence criterion for H1                             0.100D-03
+Optimization algorithm                                         EMA
+
+Input data file(s)
+  wide-dataset.dat
+Input data format  FREE
+
+
+
+SAMPLE STATISTICS
+
+
+     ESTIMATED SAMPLE STATISTICS
+
+
+           Means
+              A_01          A_03          A_05          AGE_C80
+              ________      ________      ________      ________
+ 1             25.253        25.292        21.144         2.956
+
+
+           Covariances
+              A_01          A_03          A_05          AGE_C80
+              ________      ________      ________      ________
+ A_01         115.100
+ A_03          87.072       112.396
+ A_05          65.743        71.654       106.672
+ AGE_C80       -5.471        -4.171        -5.425         6.716
+
+
+           Correlations
+              A_01          A_03          A_05          AGE_C80
+              ________      ________      ________      ________
+ A_01           1.000
+ A_03           0.766         1.000
+ A_05           0.593         0.654         1.000
+ AGE_C80       -0.197        -0.152        -0.203         1.000
+
+
+     MAXIMUM LOG-LIKELIHOOD VALUE FOR THE UNRESTRICTED (H1) MODEL IS -4489.162
+
+
+UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+
+     UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+         Variable/         Mean/     Skewness/   Minimum/ % with                Percentiles
+        Sample Size      Variance    Kurtosis    Maximum  Min/Max      20%/60%    40%/80%    Median
+
+     A_01                 25.474       0.111       0.000    4.27%      13.000     19.000     24.000
+             468.000     115.014      -0.266      59.000    0.21%      26.000     33.000
+     A_03                 26.404       0.182       0.000    5.86%      13.000     19.000     22.000
+             290.000     115.965      -0.641      56.000    0.34%      26.000     34.000
+     A_05                 23.538       0.453       0.000    7.80%      12.000     18.000     20.000
+             141.000     107.475      -0.517      51.000    0.71%      22.000     32.000
+     AGE_C80               2.956       1.106      -0.581    0.20%       0.866      1.623      2.156
+             492.000       6.716       0.699      13.313    0.20%       2.816      5.204
+
+
+THE MODEL ESTIMATION TERMINATED NORMALLY
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                        8
+
+Loglikelihood
+
+          H0 Value                       -2471.539
+          H0 Scaling Correction Factor      1.0292
+            for MLR
+
+Information Criteria
+
+          Akaike (AIC)                    4959.078
+          Bayesian (BIC)                  4990.255
+          Sample-Size Adjusted BIC        4964.875
+            (n* = (n + 2) / 24)
+
+
+
+MODEL RESULTS
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+ IA         ON
+    AGE_C80           -0.813      0.224     -3.621      0.000
+
+ SA         ON
+    AGE_C80            0.024      0.035      0.688      0.492
+
+ IA       WITH
+    SA                -2.463      0.957     -2.573      0.010
+
+ Intercepts
+    A_01               0.000      0.000    999.000    999.000
+    A_03               0.000      0.000    999.000    999.000
+    A_05               0.000      0.000    999.000    999.000
+    IA                28.056      0.955     29.378      0.000
+    SA                -0.475      0.122     -3.900      0.000
+
+ Residual Variances
+    A_01              29.513      3.824      7.717      0.000
+    A_03              29.513      3.824      7.717      0.000
+    A_05              29.513      3.824      7.717      0.000
+    IA                86.419      9.077      9.521      0.000
+    SA                 0.418      0.211      1.984      0.047
+
+
+QUALITY OF NUMERICAL RESULTS
+
+     Condition Number for the Information Matrix              0.707E-03
+       (ratio of smallest to largest eigenvalue)
+
+
+CONFIDENCE INTERVALS OF MODEL RESULTS
+
+                  Lower .5%  Lower 2.5%    Lower 5%    Estimate    Upper 5%  Upper 2.5%   Upper .5%
+
+ IA       ON
+    AGE_C80         -1.391      -1.253      -1.182      -0.813      -0.444      -0.373      -0.235
+
+ SA       ON
+    AGE_C80         -0.066      -0.045      -0.034       0.024       0.082       0.093       0.114
+
+ IA       WITH
+    SA              -4.930      -4.340      -4.038      -2.463      -0.888      -0.587       0.003
+
+ Intercepts
+    A_01             0.000       0.000       0.000       0.000       0.000       0.000       0.000
+    A_03             0.000       0.000       0.000       0.000       0.000       0.000       0.000
+    A_05             0.000       0.000       0.000       0.000       0.000       0.000       0.000
+    IA              25.596      26.184      26.485      28.056      29.627      29.928      30.516
+    SA              -0.788      -0.713      -0.675      -0.475      -0.274      -0.236      -0.161
+
+ Residual Variances
+    A_01            19.663      22.018      23.222      29.513      35.804      37.009      39.364
+    A_03            19.663      22.018      23.222      29.513      35.804      37.009      39.364
+    A_05            19.663      22.018      23.222      29.513      35.804      37.009      39.364
+    IA              63.039      68.629      71.488      86.419     101.350     104.209     109.798
+    SA              -0.125       0.005       0.072       0.418       0.765       0.831       0.961
+
+
+SAMPLE STATISTICS FOR ESTIMATED FACTOR SCORES
+
+
+     SAMPLE STATISTICS
+
+
+           Means
+              IA            IA_SE         SA            SA_SE
+              ________      ________      ________      ________
+ 1             23.431         4.227        -0.382         0.583
+
+
+           Covariances
+              IA            IA_SE         SA            SA_SE
+              ________      ________      ________      ________
+ IA            86.996
+ IA_SE         -1.239         0.268
+ SA            -1.899         0.040         0.095
+ SA_SE         -0.086         0.013         0.003         0.001
+
+
+           Correlations
+              IA            IA_SE         SA            SA_SE
+              ________      ________      ________      ________
+ IA             1.000
+ IA_SE         -0.256         1.000
+ SA            -0.659         0.251         1.000
+ SA_SE         -0.282         0.758         0.297         1.000
+
+
+RESULTS SAVING INFORMATION
+
+  Order of data
+
+    Parameter estimates
+     (saved in order shown in Technical 1 output)
+    Standard errors
+     (saved in order shown in Technical 1 output)
+    H0 Loglikelihood
+    H0 Scaling Correction Factor for MLR
+    Number of Free Parameters
+    Akaike (AIC)
+    Bayesian (BIC)
+    Sample-Size Adjusted BIC
+
+  Save file
+    u1_135_a_symbol_results.dat
+
+  Save file format           Free
+
+
+PLOT INFORMATION
+
+The following plots are available:
+
+  Histograms (sample values, estimated factor scores)
+  Scatterplots (sample values, estimated factor scores)
+  Latent variable distribution plots
+
+SAVEDATA INFORMATION
+
+
+  Save file
+    u1_135_a_symbol_fscores.dat
+
+  Order and format of variables
+
+    A_01           F10.3
+    A_03           F10.3
+    A_05           F10.3
+    AGE_C80        F10.3
+    TIME_01        F10.3
+    TIME_03        F10.3
+    TIME_05        F10.3
+    _WEIGHT        F10.3
+    IA             F10.3
+    IA_SE          F10.3
+    SA             F10.3
+    SA_SE          F10.3
+    PAIRID         I6
+
+  Save file format
+    12F10.3 I6
+
+  Save file record length    10000
+
+
+     Beginning Time:  17:17:53
+        Ending Time:  17:17:53
+       Elapsed Time:  00:00:00
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2014 Muthen & Muthen

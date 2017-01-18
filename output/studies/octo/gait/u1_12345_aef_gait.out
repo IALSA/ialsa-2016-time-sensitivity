@@ -1,0 +1,482 @@
+Mplus VERSION 7.3
+MUTHEN & MUTHEN
+12/17/2016  11:43 AM
+
+INPUT INSTRUCTIONS
+
+  TITLE:
+  Script produced from the prototype in ./sandbox/syntax-creator/
+  DATA:
+  File = wide-dataset.dat ;
+  VARIABLE:
+  NAMES are
+   Case PairID female age_c80 edu_c7 sbp_c167 smoke cardio diabetes dementia_ever
+      years_since_bl_01 years_since_bl_02 years_since_bl_03 years_since_bl_04
+      years_since_bl_05 pef_01 pef_02 pef_03 pef_04 pef_05 grip_01 grip_02 grip_03
+      grip_04 grip_05 gait_01 gait_02 gait_03 gait_04 gait_05 block_01 block_02
+      block_03 block_04 block_05 digitspanbackward_01 digitspanbackward_02
+      digitspanbackward_03 digitspanbackward_04 digitspanbackward_05
+      digitspanforward_01 digitspanforward_02 digitspanforward_03 digitspanforward_04
+      digitspanforward_05 symbol_01 symbol_02 symbol_03 symbol_04 symbol_05 prose_01
+      prose_02 prose_03 prose_04 prose_05 info_01 info_02 info_03 info_04 info_05
+      synonyms_01 synonyms_02 synonyms_03 synonyms_04 synonyms_05 psif_01 psif_02
+      psif_03 psif_04 psif_05 figure_01 figure_02 figure_03 figure_04 figure_05
+      mirrecall_01 mirrecall_02 mirrecall_03 mirrecall_04 mirrecall_05 mmse_01 mmse_02
+      mmse_03 mmse_04 mmse_05 mirnaming_01 mirnaming_02 mirnaming_03 mirnaming_04
+      mirnaming_05 mirrecog_01 mirrecog_02 mirrecog_03 mirrecog_04 mirrecog_05
+      clock_01 clock_02 clock_03 clock_04 clock_05
+  	;
+  Missing are all (-9999);
+  USEVARIABLES are
+  	!define the variables used in the analysis
+  	! covariates used in the model
+  age_c80
+  edu_c7
+  female	
+  	!estimated time points
+  time_01
+  time_02
+  time_03
+  time_04
+  time_05
+  	!modelled time points of process (A)
+  a_01
+  a_02
+  a_03
+  a_04
+  a_05
+  ;
+  TSCORES are
+  	!estimated time points
+  time_01
+  time_02
+  time_03
+  time_04
+  time_05;
+  CLUSTER = PairID;
+  SUBPOPULATION are
+  	!select a subset of observations
+  dementia_ever NE 1
+  ;
+  DEFINE:
+  	! assign variables to the process (A)
+  a_01 = gait_01;
+  a_02 = gait_02;
+  a_03 = gait_03;
+  a_04 = gait_04;
+  a_05 = gait_05;
+  	!assign variables to time points
+  time_01 = years_since_bl_01;
+  time_02 = years_since_bl_02;
+  time_03 = years_since_bl_03;
+  time_04 = years_since_bl_04;
+  time_05 = years_since_bl_05;
+  	
+  ANALYSIS: TYPE = RANDOM COMPLEX;
+  COVERAGE=.00;
+  MODEL:
+  	!first-level equation
+  	! assign process (A) to time points
+  ia sa | a_01 AT time_01 ;
+  ia sa | a_02 AT time_02 ;
+  ia sa | a_03 AT time_03 ;
+  ia sa | a_04 AT time_04 ;
+  ia sa | a_05 AT time_05 ;
+  	!variance of the first-level terms
+  ia (v_ia);
+  sa (v_sa);
+  	!covariance among first-level terms
+  ia WITH sa (c_iasa);
+  	!second-level equation
+  ia sa ON age_c80
+  edu_c7
+  female;
+  	!residual covariance of process (A)
+  a_01 (res_a);
+  a_02 (res_a);
+  a_03 (res_a);
+  a_04 (res_a);
+  a_05 (res_a);	
+  SAVEDATA:
+  FILE is   u1_12345_aef_gait_fscores.dat;
+  SAVE = FSCORES;
+  RESULTS are   u1_12345_aef_gait_results.dat;
+  	
+  OUTPUT: sampstat cinterval;
+  PLOT: Type is Plot1 Plot2 Plot3;
+
+
+
+*** WARNING
+  Data set contains cases with missing on x-variables.
+  These cases were not included in the analysis.
+  Number of cases with missing on x-variables:  46
+*** WARNING
+  Data set contains cases with missing on all variables except
+  x-variables.  These cases were not included in the analysis.
+  Number of cases with missing on all variables except x-variables:  107
+   2 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+
+Script produced from the prototype in ./sandbox/syntax-creator/
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                         400
+
+Number of dependent variables                                    5
+Number of independent variables                                  3
+Number of continuous latent variables                            2
+
+Observed dependent variables
+
+  Continuous
+   A_01        A_02        A_03        A_04        A_05
+
+Observed independent variables
+   AGE_C80     EDU_C7      FEMALE
+
+Continuous latent variables
+   IA          SA
+
+Variables with special functions
+
+  Cluster variable      PAIRID
+  Weight variable       _WEIGHT
+
+  Time scores
+   TIME_01     TIME_02     TIME_03     TIME_04     TIME_05
+
+
+Estimator                                                      MLR
+Information matrix                                        OBSERVED
+Maximum number of iterations                                   100
+Convergence criterion                                    0.100D-05
+Maximum number of EM iterations                                500
+Convergence criteria for the EM algorithm
+  Loglikelihood change                                   0.100D-02
+  Relative loglikelihood change                          0.100D-05
+  Derivative                                             0.100D-03
+Minimum variance                                         0.100D-03
+Maximum number of steepest descent iterations                   20
+Maximum number of iterations for H1                           2000
+Convergence criterion for H1                             0.100D-03
+Optimization algorithm                                         EMA
+
+Input data file(s)
+  wide-dataset.dat
+Input data format  FREE
+
+
+
+SAMPLE STATISTICS
+
+
+     ESTIMATED SAMPLE STATISTICS
+
+
+           Means
+              A_01          A_02          A_03          A_04          A_05
+              ________      ________      ________      ________      ________
+ 1             11.334        13.169        12.441        12.169        12.962
+
+
+           Means
+              AGE_C80       EDU_C7        FEMALE
+              ________      ________      ________
+ 1              3.079         0.287         0.665
+
+
+           Covariances
+              A_01          A_02          A_03          A_04          A_05
+              ________      ________      ________      ________      ________
+ A_01          15.336
+ A_02          17.322        58.577
+ A_03          10.601        29.740        23.973
+ A_04           6.931        19.642        12.876        14.788
+ A_05           6.736        18.774        11.979        11.801        21.777
+ AGE_C80        2.226         4.369         3.024         1.089        -1.483
+ EDU_C7        -1.498        -1.284        -1.004        -0.797        -1.982
+ FEMALE         0.207         0.389         0.082        -0.053         0.200
+
+
+           Covariances
+              AGE_C80       EDU_C7        FEMALE
+              ________      ________      ________
+ AGE_C80        7.629
+ EDU_C7        -0.443         5.975
+ FEMALE         0.116        -0.104         0.223
+
+
+           Correlations
+              A_01          A_02          A_03          A_04          A_05
+              ________      ________      ________      ________      ________
+ A_01           1.000
+ A_02           0.578         1.000
+ A_03           0.553         0.794         1.000
+ A_04           0.460         0.667         0.684         1.000
+ A_05           0.369         0.526         0.524         0.658         1.000
+ AGE_C80        0.206         0.207         0.224         0.102        -0.115
+ EDU_C7        -0.156        -0.069        -0.084        -0.085        -0.174
+ FEMALE         0.112         0.108         0.036        -0.029         0.091
+
+
+           Correlations
+              AGE_C80       EDU_C7        FEMALE
+              ________      ________      ________
+ AGE_C80        1.000
+ EDU_C7        -0.066         1.000
+ FEMALE         0.089        -0.090         1.000
+
+
+     MAXIMUM LOG-LIKELIHOOD VALUE FOR THE UNRESTRICTED (H1) MODEL IS -7527.373
+
+
+UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+
+     UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+         Variable/         Mean/     Skewness/   Minimum/ % with                Percentiles
+        Sample Size      Variance    Kurtosis    Maximum  Min/Max      20%/60%    40%/80%    Median
+
+     A_01                 11.310       1.664       5.000    0.39%       9.000     10.000     11.000
+             515.000      15.487       4.378      40.000    0.19%      12.000     15.000
+     A_02                 12.703       6.569       6.000    1.23%       9.000     11.000     11.000
+             407.000      56.709      62.444      99.000    0.25%      13.000     15.000
+     A_03                 11.556       1.568       6.000    1.36%       9.000     10.000     11.000
+             294.000      14.393       3.174      30.000    0.34%      11.000     14.000
+     A_04                 11.420       1.305       6.000    1.42%       9.000     10.000     11.000
+             211.000      10.290       1.912      28.000    0.47%      11.000     14.000
+     A_05                 12.208       2.122       7.000    1.53%       9.000     11.000     11.000
+             131.000      15.632       5.833      30.000    0.76%      12.000     14.000
+     AGE_C80               3.079       1.310      -0.630    0.18%       0.877      1.707      2.256
+             549.000       7.629       2.136      17.918    0.18%       3.021      5.395
+     EDU_C7                0.288       2.244      -7.000    0.18%      -1.000     -1.000     -1.000
+             549.000       5.975       8.030      16.000    0.18%       0.000      1.000
+     FEMALE                0.665      -0.699       0.000   34.06%       0.000      1.000      1.000
+             549.000       0.223      -1.511       1.000   65.94%       1.000      1.000
+
+     WARNING: THE MODEL ESTIMATION HAS REACHED A SADDLE POINT OR A POINT WHERE THE
+     OBSERVED AND THE EXPECTED INFORMATION MATRICES DO NOT MATCH.
+     AN ADJUSTMENT TO THE ESTIMATION OF THE INFORMATION MATRIX HAS BEEN MADE.
+     THE CONDITION NUMBER IS      -0.102D-02.
+     THE PROBLEM MAY ALSO BE RESOLVED BY DECREASING THE VALUE OF THE
+     MCONVERGENCE OR LOGCRITERION OPTIONS OR BY CHANGING THE STARTING VALUES
+     OR BY USING THE MLF ESTIMATOR.
+
+
+THE MODEL ESTIMATION TERMINATED NORMALLY
+
+
+
+MODEL FIT INFORMATION
+
+Number of Free Parameters                       12
+
+Loglikelihood
+
+          H0 Value                       -3500.094
+          H0 Scaling Correction Factor     11.1067
+            for MLR
+
+Information Criteria
+
+          Akaike (AIC)                    7024.188
+          Bayesian (BIC)                  7072.086
+          Sample-Size Adjusted BIC        7034.009
+            (n* = (n + 2) / 24)
+
+
+
+MODEL RESULTS
+
+                                                    Two-Tailed
+                    Estimate       S.E.  Est./S.E.    P-Value
+
+ IA         ON
+    AGE_C80            0.384      0.080      4.790      0.000
+    EDU_C7            -0.196      0.076     -2.569      0.010
+    FEMALE             0.816      0.418      1.954      0.051
+
+ SA         ON
+    AGE_C80           -0.013      0.061     -0.214      0.830
+    EDU_C7             0.006      0.026      0.247      0.805
+    FEMALE            -0.041      0.153     -0.266      0.790
+
+ IA       WITH
+    SA                 1.471      3.029      0.486      0.627
+
+ Intercepts
+    A_01               0.000      0.000    999.000    999.000
+    A_02               0.000      0.000    999.000    999.000
+    A_03               0.000      0.000    999.000    999.000
+    A_04               0.000      0.000    999.000    999.000
+    A_05               0.000      0.000    999.000    999.000
+    IA                 9.912      0.367     26.981      0.000
+    SA                 0.406      0.095      4.289      0.000
+
+ Residual Variances
+    A_01              11.021      1.247      8.841      0.000
+    A_02              11.021      1.247      8.841      0.000
+    A_03              11.021      1.247      8.841      0.000
+    A_04              11.021      1.247      8.841      0.000
+    A_05              11.021      1.247      8.841      0.000
+    IA                11.020      3.848      2.864      0.004
+    SA                 0.209      1.308      0.160      0.873
+
+
+QUALITY OF NUMERICAL RESULTS
+
+     Condition Number for the Information Matrix             -0.102E-02
+       (ratio of smallest to largest eigenvalue)
+
+
+CONFIDENCE INTERVALS OF MODEL RESULTS
+
+                  Lower .5%  Lower 2.5%    Lower 5%    Estimate    Upper 5%  Upper 2.5%   Upper .5%
+
+ IA       ON
+    AGE_C80          0.177       0.227       0.252       0.384       0.516       0.541       0.590
+    EDU_C7          -0.393      -0.346      -0.322      -0.196      -0.071      -0.046       0.001
+    FEMALE          -0.260      -0.002       0.129       0.816       1.503       1.635       1.892
+
+ SA       ON
+    AGE_C80         -0.170      -0.133      -0.114      -0.013       0.087       0.107       0.144
+    EDU_C7          -0.060      -0.044      -0.036       0.006       0.049       0.057       0.073
+    FEMALE          -0.434      -0.340      -0.292      -0.041       0.210       0.258       0.352
+
+ IA       WITH
+    SA              -6.331      -4.466      -3.512       1.471       6.453       7.407       9.272
+
+ Intercepts
+    A_01             0.000       0.000       0.000       0.000       0.000       0.000       0.000
+    A_02             0.000       0.000       0.000       0.000       0.000       0.000       0.000
+    A_03             0.000       0.000       0.000       0.000       0.000       0.000       0.000
+    A_04             0.000       0.000       0.000       0.000       0.000       0.000       0.000
+    A_05             0.000       0.000       0.000       0.000       0.000       0.000       0.000
+    IA               8.965       9.191       9.307       9.912      10.516      10.632      10.858
+    SA               0.162       0.220       0.250       0.406       0.562       0.591       0.650
+
+ Residual Variances
+    A_01             7.810       8.577       8.970      11.021      13.071      13.464      14.231
+    A_02             7.810       8.577       8.970      11.021      13.071      13.464      14.231
+    A_03             7.810       8.577       8.970      11.021      13.071      13.464      14.231
+    A_04             7.810       8.577       8.970      11.021      13.071      13.464      14.231
+    A_05             7.810       8.577       8.970      11.021      13.071      13.464      14.231
+    IA               1.109       3.479       4.691      11.020      17.349      18.561      20.931
+    SA              -3.160      -2.355      -1.942       0.209       2.361       2.773       3.578
+
+
+SAMPLE STATISTICS FOR ESTIMATED FACTOR SCORES
+
+
+     SAMPLE STATISTICS
+
+
+           Means
+              IA            IA_SE         SA            SA_SE
+              ________      ________      ________      ________
+ 1             11.965         1.560         0.382         0.226
+
+
+           Covariances
+              IA            IA_SE         SA            SA_SE
+              ________      ________      ________      ________
+ IA            10.397
+ IA_SE          0.569         0.276
+ SA             1.131         0.056         0.165
+ SA_SE          0.079         0.038         0.008         0.005
+
+
+           Correlations
+              IA            IA_SE         SA            SA_SE
+              ________      ________      ________      ________
+ IA             1.000
+ IA_SE          0.336         1.000
+ SA             0.864         0.261         1.000
+ SA_SE          0.339         0.999         0.265         1.000
+
+
+RESULTS SAVING INFORMATION
+
+  Order of data
+
+    Parameter estimates
+     (saved in order shown in Technical 1 output)
+    Standard errors
+     (saved in order shown in Technical 1 output)
+    H0 Loglikelihood
+    H0 Scaling Correction Factor for MLR
+    Number of Free Parameters
+    Akaike (AIC)
+    Bayesian (BIC)
+    Sample-Size Adjusted BIC
+
+  Save file
+    u1_12345_aef_gait_results.dat
+
+  Save file format           Free
+
+
+PLOT INFORMATION
+
+The following plots are available:
+
+  Histograms (sample values, estimated factor scores)
+  Scatterplots (sample values, estimated factor scores)
+  Latent variable distribution plots
+
+SAVEDATA INFORMATION
+
+
+  Save file
+    u1_12345_aef_gait_fscores.dat
+
+  Order and format of variables
+
+    A_01           F10.3
+    A_02           F10.3
+    A_03           F10.3
+    A_04           F10.3
+    A_05           F10.3
+    AGE_C80        F10.3
+    EDU_C7         F10.3
+    FEMALE         F10.3
+    TIME_01        F10.3
+    TIME_02        F10.3
+    TIME_03        F10.3
+    TIME_04        F10.3
+    TIME_05        F10.3
+    _WEIGHT        F10.3
+    IA             F10.3
+    IA_SE          F10.3
+    SA             F10.3
+    SA_SE          F10.3
+    PAIRID         I6
+
+  Save file format
+    18F10.3 I6
+
+  Save file record length    10000
+
+
+     Beginning Time:  11:43:22
+        Ending Time:  11:43:26
+       Elapsed Time:  00:00:04
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2014 Muthen & Muthen

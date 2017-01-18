@@ -1,0 +1,422 @@
+Mplus VERSION 7.3
+MUTHEN & MUTHEN
+12/17/2016   6:19 PM
+
+INPUT INSTRUCTIONS
+
+  TITLE:
+  Script produced from the prototype in ./sandbox/syntax-creator/
+  DATA:
+  File = wide-dataset.dat ;
+  VARIABLE:
+  NAMES are
+   Case PairID female age_c80 edu_c7 sbp_c167 smoke cardio diabetes dementia_ever
+      years_since_bl_01 years_since_bl_02 years_since_bl_03 years_since_bl_04
+      years_since_bl_05 pef_01 pef_02 pef_03 pef_04 pef_05 grip_01 grip_02 grip_03
+      grip_04 grip_05 gait_01 gait_02 gait_03 gait_04 gait_05 block_01 block_02
+      block_03 block_04 block_05 digitspanbackward_01 digitspanbackward_02
+      digitspanbackward_03 digitspanbackward_04 digitspanbackward_05
+      digitspanforward_01 digitspanforward_02 digitspanforward_03 digitspanforward_04
+      digitspanforward_05 symbol_01 symbol_02 symbol_03 symbol_04 symbol_05 prose_01
+      prose_02 prose_03 prose_04 prose_05 info_01 info_02 info_03 info_04 info_05
+      synonyms_01 synonyms_02 synonyms_03 synonyms_04 synonyms_05 psif_01 psif_02
+      psif_03 psif_04 psif_05 figure_01 figure_02 figure_03 figure_04 figure_05
+      mirrecall_01 mirrecall_02 mirrecall_03 mirrecall_04 mirrecall_05 mmse_01 mmse_02
+      mmse_03 mmse_04 mmse_05 mirnaming_01 mirnaming_02 mirnaming_03 mirnaming_04
+      mirnaming_05 mirrecog_01 mirrecog_02 mirrecog_03 mirrecog_04 mirrecog_05
+      clock_01 clock_02 clock_03 clock_04 clock_05
+  	;
+  Missing are all (-9999);
+  USEVARIABLES are
+  	!define the variables used in the analysis
+  	! covariates used in the model
+  age_c80	
+  	!estimated time points
+  time_01
+  time_04
+  time_05
+  	!modelled time points of process (A)
+  a_01
+  a_04
+  a_05
+  ;
+  TSCORES are
+  	!estimated time points
+  time_01
+  time_04
+  time_05;
+  CLUSTER = PairID;
+  SUBPOPULATION are
+  	!select a subset of observations
+  dementia_ever NE 1
+  ;
+  DEFINE:
+  	! assign variables to the process (A)
+  a_01 = prose_01;
+  a_04 = prose_04;
+  a_05 = prose_05;
+  	!assign variables to time points
+  time_01 = years_since_bl_01;
+  time_04 = years_since_bl_04;
+  time_05 = years_since_bl_05;
+  	
+  ANALYSIS: TYPE = RANDOM COMPLEX;
+  COVERAGE=.00;
+  MODEL:
+  	!first-level equation
+  	! assign process (A) to time points
+  ia sa qa | a_01 AT time_01 ;
+  ia sa qa | a_04 AT time_04 ;
+  ia sa qa | a_05 AT time_05 ;
+  	!variance of the first-level terms
+  ia (v_ia);
+  sa (v_sa);
+  qa (v_qa);
+  	!covariance among first-level terms
+  ia WITH sa (c_iasa);
+  ia WITH qa (c_iaqa);
+  sa WITH qa (c_saqa);
+  	!second-level equation
+  ia sa qa ON age_c80;
+  	!residual covariance of process (A)
+  a_01 (res_a);
+  a_04 (res_a);
+  a_05 (res_a);	
+  SAVEDATA:
+  FILE is   u2_145_a_prose_fscores.dat;
+  SAVE = FSCORES;
+  RESULTS are   u2_145_a_prose_results.dat;
+  	
+  OUTPUT: sampstat cinterval;
+  PLOT: Type is Plot1 Plot2 Plot3;
+
+
+
+*** WARNING
+  Data set contains cases with missing on all variables except
+  x-variables.  These cases were not included in the analysis.
+  Number of cases with missing on all variables except x-variables:  126
+   1 WARNING(S) FOUND IN THE INPUT INSTRUCTIONS
+
+
+
+
+Script produced from the prototype in ./sandbox/syntax-creator/
+
+SUMMARY OF ANALYSIS
+
+Number of groups                                                 1
+Number of observations                                         409
+
+Number of dependent variables                                    3
+Number of independent variables                                  1
+Number of continuous latent variables                            3
+
+Observed dependent variables
+
+  Continuous
+   A_01        A_04        A_05
+
+Observed independent variables
+   AGE_C80
+
+Continuous latent variables
+   IA          SA          QA
+
+Variables with special functions
+
+  Cluster variable      PAIRID
+  Weight variable       _WEIGHT
+
+  Time scores
+   TIME_01     TIME_04     TIME_05
+
+
+Estimator                                                      MLR
+Information matrix                                        OBSERVED
+Maximum number of iterations                                   100
+Convergence criterion                                    0.100D-05
+Maximum number of EM iterations                                500
+Convergence criteria for the EM algorithm
+  Loglikelihood change                                   0.100D-02
+  Relative loglikelihood change                          0.100D-05
+  Derivative                                             0.100D-03
+Minimum variance                                         0.100D-03
+Maximum number of steepest descent iterations                   20
+Maximum number of iterations for H1                           2000
+Convergence criterion for H1                             0.100D-03
+Optimization algorithm                                         EMA
+
+Input data file(s)
+  wide-dataset.dat
+Input data format  FREE
+
+
+
+SAMPLE STATISTICS
+
+
+     ESTIMATED SAMPLE STATISTICS
+
+
+           Means
+              A_01          A_04          A_05          AGE_C80
+              ________      ________      ________      ________
+ 1              9.961        10.179         9.677         3.134
+
+
+           Covariances
+              A_01          A_04          A_05          AGE_C80
+              ________      ________      ________      ________
+ A_01          16.146
+ A_04           9.423        13.227
+ A_05           7.752         8.492        13.303
+ AGE_C80       -2.243        -2.766         0.587         8.200
+
+
+           Correlations
+              A_01          A_04          A_05          AGE_C80
+              ________      ________      ________      ________
+ A_01           1.000
+ A_04           0.645         1.000
+ A_05           0.529         0.640         1.000
+ AGE_C80       -0.195        -0.266         0.056         1.000
+
+
+     MAXIMUM LOG-LIKELIHOOD VALUE FOR THE UNRESTRICTED (H1) MODEL IS -3882.184
+
+
+UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+
+     UNIVARIATE HIGHER-ORDER MOMENT DESCRIPTIVE STATISTICS
+
+         Variable/         Mean/     Skewness/   Minimum/ % with                Percentiles
+        Sample Size      Variance    Kurtosis    Maximum  Min/Max      20%/60%    40%/80%    Median
+
+     A_01                  9.973      -0.617       0.000    6.49%       4.000      8.000     10.000
+             570.000      16.100      -0.392      16.000    3.68%      11.000     13.000
+     A_04                 10.911      -0.866       0.000   10.26%       3.000      9.000     10.000
+             195.000      11.547       0.202      16.000    3.08%      12.000     13.000
+     A_05                 10.123      -1.011       0.000    8.27%       3.000      9.000     10.000
+             133.000      12.259       0.378      16.000    0.75%      11.000     13.000
+     AGE_C80               3.134       1.351      -0.630    0.17%       0.877      1.751      2.325
+             576.000       8.200       2.094      17.918    0.17%       3.115      5.360
+
+     THE MODEL ESTIMATION DID NOT TERMINATE NORMALLY DUE TO AN ILL-CONDITIONED
+     FISHER INFORMATION MATRIX.  CHANGE YOUR MODEL AND/OR STARTING VALUES.
+
+     THE MODEL ESTIMATION DID NOT TERMINATE NORMALLY DUE TO A NON-POSITIVE
+     DEFINITE FISHER INFORMATION MATRIX.  THIS MAY BE DUE TO THE STARTING VALUES
+     BUT MAY ALSO BE AN INDICATION OF MODEL NONIDENTIFICATION.  THE CONDITION
+     NUMBER IS       0.196D-10.
+
+     THE STANDARD ERRORS OF THE MODEL PARAMETER ESTIMATES COULD NOT BE
+     COMPUTED.  THIS IS OFTEN DUE TO THE STARTING VALUES BUT MAY ALSO BE
+     AN INDICATION OF MODEL NONIDENTIFICATION.  CHANGE YOUR MODEL AND/OR
+     STARTING VALUES.  PROBLEM INVOLVING THE FOLLOWING PARAMETER:
+     Parameter 1, A_01 (equality/label)
+
+
+
+
+
+
+MODEL RESULTS
+
+                    Estimate
+
+ IA         ON
+    AGE_C80           -0.274
+
+ SA         ON
+    AGE_C80           -0.168
+
+ QA         ON
+    AGE_C80            0.026
+
+ IA       WITH
+    SA                -1.723
+    QA                 0.100
+
+ SA       WITH
+    QA                -0.327
+
+ Intercepts
+    A_01               0.000
+    A_04               0.000
+    A_05               0.000
+    IA                10.818
+    SA                 0.783
+    QA                -0.119
+
+ Residual Variances
+    A_01               0.006
+    A_04               0.006
+    A_05               0.006
+    IA                15.528
+    SA                 2.658
+    QA                 0.043
+
+
+MODEL COMMAND WITH FINAL ESTIMATES USED AS STARTING VALUES
+
+     ia sa qa | a_01 AT time_01;
+     ia sa qa | a_04 AT time_04;
+     ia sa qa | a_05 AT time_05;
+
+     ia ON age_c80*-0.27354;
+     sa ON age_c80*-0.16766;
+     qa ON age_c80*0.02610;
+
+     ia WITH sa*-1.72336 (c_iasa);
+     ia WITH qa*0.09956 (c_iaqa);
+     sa WITH qa*-0.32712 (c_saqa);
+
+     [ a_01@0 ];
+     [ a_04@0 ];
+     [ a_05@0 ];
+     [ ia*10.81764 ];
+     [ sa*0.78257 ];
+     [ qa*-0.11902 ];
+
+     a_01*0.00586 (res_a);
+     a_04*0.00586 (res_a);
+     a_05*0.00586 (res_a);
+     ia*15.52786 (v_ia);
+     sa*2.65843 (v_sa);
+     qa*0.04332 (v_qa);
+
+
+
+TECHNICAL 1 OUTPUT
+
+
+     PARAMETER SPECIFICATION
+
+
+           NU
+              A_01          A_04          A_05          AGE_C80
+              ________      ________      ________      ________
+ 1                  0             0             0             0
+
+
+           LAMBDA
+              IA            SA            QA            AGE_C80
+              ________      ________      ________      ________
+ A_01               0             0             0             0
+ A_04               0             0             0             0
+ A_05               0             0             0             0
+ AGE_C80            0             0             0             0
+
+
+           THETA
+              A_01          A_04          A_05          AGE_C80
+              ________      ________      ________      ________
+ A_01               1
+ A_04               0             1
+ A_05               0             0             1
+ AGE_C80            0             0             0             0
+
+
+           ALPHA
+              IA            SA            QA            AGE_C80
+              ________      ________      ________      ________
+ 1                  2             3             4             0
+
+
+           BETA
+              IA            SA            QA            AGE_C80
+              ________      ________      ________      ________
+ IA                 0             0             0             5
+ SA                 0             0             0             6
+ QA                 0             0             0             7
+ AGE_C80            0             0             0             0
+
+
+           PSI
+              IA            SA            QA            AGE_C80
+              ________      ________      ________      ________
+ IA                 8
+ SA                 9            10
+ QA                11            12            13
+ AGE_C80            0             0             0             0
+
+
+     STARTING VALUES
+
+
+           NU
+              A_01          A_04          A_05          AGE_C80
+              ________      ________      ________      ________
+ 1              0.000         0.000         0.000         0.000
+
+
+           LAMBDA
+              IA            SA            QA            AGE_C80
+              ________      ________      ________      ________
+ A_01           0.000         0.000         0.000         0.000
+ A_04           0.000         0.000         0.000         0.000
+ A_05           0.000         0.000         0.000         0.000
+ AGE_C80        0.000         0.000         0.000         1.000
+
+
+           THETA
+              A_01          A_04          A_05          AGE_C80
+              ________      ________      ________      ________
+ A_01           8.050
+ A_04           0.000         5.773
+ A_05           0.000         0.000         6.129
+ AGE_C80        0.000         0.000         0.000         0.000
+
+
+           ALPHA
+              IA            SA            QA            AGE_C80
+              ________      ________      ________      ________
+ 1             10.975         0.510        -0.076         0.000
+
+
+           BETA
+              IA            SA            QA            AGE_C80
+              ________      ________      ________      ________
+ IA             0.000         0.000         0.000         0.000
+ SA             0.000         0.000         0.000         0.000
+ QA             0.000         0.000         0.000         0.000
+ AGE_C80        0.000         0.000         0.000         0.000
+
+
+           PSI
+              IA            SA            QA            AGE_C80
+              ________      ________      ________      ________
+ IA            12.622
+ SA             0.000         2.529
+ QA             0.000         0.000         0.043
+ AGE_C80        0.000         0.000         0.000         4.100
+
+
+RESULTS SAVING INFORMATION
+
+    Model estimation did not terminate normally.  No results were saved.
+
+SAVEDATA INFORMATION
+
+     Factor scores were not computed.
+     No data were saved.
+
+
+     Beginning Time:  18:19:46
+        Ending Time:  18:19:46
+       Elapsed Time:  00:00:00
+
+
+
+MUTHEN & MUTHEN
+3463 Stoner Ave.
+Los Angeles, CA  90066
+
+Tel: (310) 391-9971
+Fax: (310) 391-8971
+Web: www.StatModel.com
+Support: Support@StatModel.com
+
+Copyright (c) 1998-2014 Muthen & Muthen
