@@ -287,8 +287,12 @@ plot_trajectories <- function(
     ggplot2::ggplot(aes_string(x=time_var,y="value")) +
     geom_line(aes(group=id),size=.9,alpha=.075)+
     geom_point(size=.8, alpha=.15)+
+    # geom_smooth(aes(group=id), method="loess",color="red", size=3 )+
+    # geom_smooth(method="lm", color="blue")+
+    geom_smooth(method="loess", color="red",size=.8, fill="yellow", alpha=.7, linetype="solid", na.rm=T, span=1.5)+
     facet_grid(.~source)+
     scale_y_continuous(limits = c(-10,40), breaks=seq(-10,40,10))+
+    # scale_y_continuous(limits = c(-10,30), breaks=seq(-10,30,10))+
     # scale_color_manual(values = color_scale)+
     # labs(y="MMSE",x="Time until death", color = group_label)+
     main_theme+
