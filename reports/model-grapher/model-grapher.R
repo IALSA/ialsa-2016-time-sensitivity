@@ -73,12 +73,19 @@ names(ls_one_model)
 
 
 # ---- utility-functions ---------------
-quick_save <- function(g,name,width=1200,height=400,dpi=300){
+quick_save <- function(
+  g,
+  name,
+  width=1200,
+  height=400,
+  dpi=300,
+  path_folder
+){
   ggplot2::ggsave(
     filename= paste0(name,".png"), 
     plot=g,
     device = png,
-    path = "./reports/model-grapher/graphs-1/",
+    path = path_folder,
     width = width,
     height = height,
     # units = "cm",
@@ -102,6 +109,27 @@ centers <- c(
 # ds_long %>% plot_trajectories("age_at_visit",100)
 sample_size <- "max"
 # sample_size <- 100
+
+conditions <- c("u1_12345_aefb","u2_12345_aefb",
+                "u1_1234_aefb", "u2_1234_aefb",
+                "u1_123_aefb",  "u2_123_aefb",
+                "u1_135_aefb",  "u2_135_aefb")
+
+print_trajectories <- function(lscat, varname, n, wave_condition ){
+  conditions[1]
+  varname <- "mmse"
+  i <- 1
+  model <- paste0(conditions[i],"_",varname)
+  
+  file_name <- ifelse()
+  
+  ls_catalog %>% 
+    trajectory_matrix(model,sample_size) %>% 
+    quick_save("L-12345")
+  
+}
+
+
 
 ls_catalog %>% 
   trajectory_matrix("u1_12345_aefb_mmse",sample_size) %>% 
