@@ -1,7 +1,10 @@
 
 numformat <- function(val) { sub("^(-?)0.", "\\1.", sprintf("%.2f", val)) }
 
-get_estimate_table <- function(lst){
+# returns a data frame with formated values
+get_estimate_table <- function(
+  lst
+  ){
   # lst <- model_result
   d1 <- lst[["parameters"]][["unstandardized"]]
   d2 <- stencil %>% 
@@ -15,6 +18,7 @@ get_estimate_table <- function(lst){
     )
   return(d2)
 }
+
 # prints a table with columns corresponding to wave sets 
 spread_by_wave_set <- function(
   catalog,
