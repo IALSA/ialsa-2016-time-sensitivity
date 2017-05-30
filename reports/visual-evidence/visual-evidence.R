@@ -193,10 +193,10 @@ print_figure <- function(x,figure_name, folder){
 
 # ---- print-measure ----------------------
 ds_catalog %>% print_figure("Figure A", "./reports/visual-evidence/prints/")
-# ds_catalog %>% print_figure("Figure B", "./reports/visual-evidence/prints/")
-# ds_catalog %>% print_figure("Figure C", "./reports/visual-evidence/prints/")
-# ds_catalog %>% print_figure("Figure D", "./reports/visual-evidence/prints/")
-# ds_catalog %>% print_figure("Figure E", "./reports/visual-evidence/prints/")
-# ds_catalog %>% print_figure("Figure F", "./reports/visual-evidence/prints/")
-# ds_catalog %>% print_figure("Figure G", "./reports/visual-evidence/prints/")
+ds_catalog %>% print_figure("Figure B", "./reports/visual-evidence/prints/")
+ds_catalog %>% print_figure("Figure C", "./reports/visual-evidence/prints/")
+ds_catalog %>% print_figure("Figure D", "./reports/visual-evidence/prints/")
+ds_catalog %>% print_figure("Figure E", "./reports/visual-evidence/prints/")
+ds_catalog %>% print_figure("Figure F", "./reports/visual-evidence/prints/")
+ds_catalog %>% print_figure("Figure G", "./reports/visual-evidence/prints/")
 
