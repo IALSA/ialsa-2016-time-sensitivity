@@ -59,6 +59,59 @@ plot_coef <- function(
 }   
 # ds_catalog %>% plot_coef("(R)-Error")
 
+# graph model information (LL, AIC, BIC)
+plot_info <- function(
+  x,
+  model_type_="aefb",  
+  process_ ="mmse" 
+){
+  # x <- ds_catalog
+  # model_type_="aefb"
+  # process_ ="mmse"
+
+   d <- x %>% 
+      # dplyr::filter(label == label_) %>% 
+      dplyr::filter(model_type == model_type_) %>% 
+      dplyr::filter(process == process_) %>% 
+      dplyr::distinct(
+        model_name, model_number, wave_set,model_set, model_type, process, N, parameters, AIC, BIC
+      ) %>%
+      tidyr::gather_(key = "index",value = "misfit_value", c("AIC","BIC")) %>% 
+      dplyr::mutate(
+        index = factor(index),
+        # counts = paste0("N = ",scales::comma(N),", p = ", parameters)
+        n_p = paste0("  ",scales::comma(N),"-", parameters,"  ")
+        
+      )
+    dd <- d %>% dplyr::distinct(model_set, n_p)  %>% dplyr::arrange(desc(model_set) )
+   
+    # custom_lables = levels(d %>% dplyr::select())
+    # max_misfit <- max(d %>% dplyr::select(misfit_value))
+    # max_misfit <- ceiling(max_misfit + .1*max_misfit)
+    g <-  ggplot2::ggplot(d,aes_string(y     = "model_set", 
+                                       x     = "misfit_value",
+                                       shape = "index"
+                                       # color = "sign",
+                                       # fill  = "sign",
+                                       # shape = "model_number"
+                                       ))  
+    g <- g + geom_point(size = baseSize-9)
+    g <- g + scale_x_continuous(labels = scales::comma)
+    # g <- g + geom_text(aes(label = counts, x=Inf), hjust=-1)
+    # g <- g + geom_text(aes(label = counts, x=Inf), hjust = .1)
+    g <- g + scale_y_discrete(position = "left", labels = dd$n_p )
+    g <- g + scale_shape_manual(values = c("AIC"=65, "BIC"=66))
+    # g <- g + guides(fill=FALSE, color=FALSE)
+    g <- g + guides(fill=FALSE, color=FALSE, shape = FALSE)
+    g <- g + labs(x = "Information Criteria: (A)kaike & (B)ayesian", y = NULL)
+    g <- g + main_theme
+    # g <- g + theme(legend.position=c(.5,.5)) 
+    # g <- g + theme(legend.background=element_rect(fill="white", colour="black"))
+    g <- g + theme(axis.text.y = element_text(size=baseSize))
+    g
+}   
+# ds_catalog %>% plot_info()
+
 # 
 # levels(ds_catalog$label)
 
@@ -72,13 +125,20 @@ matrix_coef <- function(
   # x <- ds_catalog
   # model_type="aefb"
   # process ="mmse"
-  # term_group = "level"
-  # term_group = "error"
+  # # term_group = "level"
+  # # term_group = "error"
+  # term_group ="misfit"
   
   terms <- ls_terms[[term_group]]
   lst <- list()
-  for(i in seq_along(terms)){
-    lst[[i]] <- x %>% plot_coef(terms[i],model_type,process)
+  if(term_group=="misfit"){
+    for(i in seq_along(terms)){
+      lst[[i]] <- x %>% plot_info(model_type,process)
+    }
+  }else{
+    for(i in seq_along(terms)){
+      lst[[i]] <- x %>% plot_coef(terms[i],model_type,process)
+    }
   }
   pm <- GGally::ggmatrix(
     lst,
@@ -95,13 +155,15 @@ matrix_coef <- function(
   pm
 }
 # matrix_coef(ds_catalog,"level","aefb","mmse")
+# matrix_coef(ds_catalog,"misfit","aefb","mmse")
 
 # used matrix_coef() to create a supermatrix of plots
 super_matrix <- function(
   x,
-  model_type,
-  process, 
   folder_name,
+  process, 
+  model_type,
+  suffix = F,
   width, 
   height,
   res
@@ -113,33 +175,46 @@ super_matrix <- function(
   # height = 1200
   # width = 1400
   # res = 600
+  # 
+  # assemble the name of the file to be saved
+  if(is.character(suffix)) {
+    # suffix = "1"
+    path_save  <- paste0(folder_name,process,"-",model_type,"-",suffix,".png")
+    main_title <- paste0(suffix, ": estimated parameters modeling ",toupper(process) )               
+  }else{
+    path_save = paste0(folder_name,process,"-",model_type,".png")
+    main_title <- paste0(toupper(process)," : model parameters")
+  }
+  
   
   g1 <- matrix_coef(x,"level",    model_type,process)
   g2 <- matrix_coef(x,"linear",   model_type,process)
   g3 <- matrix_coef(x,"quadratic",model_type,process)
   g4 <- matrix_coef(x,"error",    model_type,process)
+  g5 <- matrix_coef(x,"misfit",   model_type,process) #+ theme(axis.text.y = element_blank())
+  # g5 <- matrix_coef(x,"misfit",   model_type,process) + theme(strip.text = element_text)
+
   
-  path_save = paste0(folder_name,process,"-",model_type,".png")
+  n_columns <- 18
+  column_unit <- 100/n_columns
+  # open PNG connection
   png(filename = path_save, width = width, height = height,res = res)
-  
   vpLayout <- function(rowIndex, columnIndex) { return( viewport(layout.pos.row=rowIndex, layout.pos.col=columnIndex) ) }
   grid::grid.newpage()
   #Defnie the relative proportions among the panels in the mosaic.
-  layout <- grid::grid.layout(nrow=5, ncol=5,
-                              widths=grid::unit(c(.2,.2,.2,.2,.2) ,c("null","null","null","null","null")),
-                              heights=grid::unit(c(.05,.24,.24,.24,.24), c("null","null","null","null"))
+  layout <- grid::grid.layout(nrow=5, ncol=n_columns,
+                              widths=grid::unit( rep(column_unit,n_columns) ,rep("null",n_columns)),
+                              heights=grid::unit(c(.05,.24,.24,.24,.24), rep("null",5))
   )
   grid::pushViewport(grid::viewport(layout=layout))
-  # main_title <- toupper(dsL$study_name[1])
-  # main_title <- paste0(toupper(mp$study_name), " \n ", mp$subgroup, " \n ",
-  #                      "N = ", sample_N)
-  main_title <- paste0(toupper(process)," : model parameters")
-  grid::grid.text(main_title, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1:3))
-  print(g1, vp=grid::viewport(layout.pos.row=2,layout.pos.col=1:5))
-  print(g2, vp=grid::viewport(layout.pos.row=3,layout.pos.col=1:5))
-  print(g3, vp=grid::viewport(layout.pos.row=4,layout.pos.col=1:5))
-  print(g4, vp=grid::viewport(layout.pos.row=5,layout.pos.col=1))
-  dev.off()
+  grid::grid.text(main_title, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2:12),hjust = "1")
+  print(g1, vp=grid::viewport(layout.pos.row=2,layout.pos.col=1:18))
+  print(g2, vp=grid::viewport(layout.pos.row=3,layout.pos.col=1:18))
+  print(g3, vp=grid::viewport(layout.pos.row=4,layout.pos.col=1:18))
+  print(g4, vp=grid::viewport(layout.pos.row=5,layout.pos.col=1:4))
+  print(g5, vp=grid::viewport(layout.pos.row=5,layout.pos.col=5:12))
+  
+  dev.off() # close PNG device
   # return(grid::popViewport(0))
 }
 
