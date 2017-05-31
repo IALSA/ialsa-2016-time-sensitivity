@@ -61,3 +61,6 @@ sandbox/pipeline-demo-1/outputs/generic-data/data-long.rds
 sandbox/pipeline-demo-1/outputs/generic-data/data-wide.rds
 data/shared/derived/ls_catalog.rds
 data/shared/derived/ls_catalog.rds
+libs/papers/timmons_preacher_(customizable.r.code).pdf
+libs/papers/timmons_preacher_(pairwise.comparisons).pdf
+libs/papers/timmons_preacher_2015.pdf
