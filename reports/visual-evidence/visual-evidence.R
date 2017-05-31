@@ -46,7 +46,7 @@ ls_terms <- list(
     "Q-slope*Systolic BP"
   ),
   "error" = c("(R)-Error"),
-  "misfit"="misfit_value"
+  "info_index"="BIC"
 
 )
 # ls_terms <- list(

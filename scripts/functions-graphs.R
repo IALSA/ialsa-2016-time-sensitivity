@@ -59,58 +59,126 @@ plot_coef <- function(
 }   
 # ds_catalog %>% plot_coef("(R)-Error")
 
-# graph model information (LL, AIC, BIC)
-plot_info <- function(
+# graphs a single model information index (LL, AIC, BIC)
+plot_info_one <- function(
   x,
   model_type_="aefb",  
-  process_ ="mmse" 
+  process_ ="mmse",
+  index_name = "BIC"
 ){
+  # values for testing and development
   # x <- ds_catalog
   # model_type_="aefb"
   # process_ ="mmse"
-
-   d <- x %>% 
-      # dplyr::filter(label == label_) %>% 
-      dplyr::filter(model_type == model_type_) %>% 
-      dplyr::filter(process == process_) %>% 
-      dplyr::distinct(
-        model_name, model_number, wave_set,model_set, model_type, process, N, parameters, AIC, BIC
-      ) %>%
-      tidyr::gather_(key = "index",value = "misfit_value", c("AIC","BIC")) %>% 
-      dplyr::mutate(
-        index = factor(index),
-        # counts = paste0("N = ",scales::comma(N),", p = ", parameters)
-        n_p = paste0("  ",scales::comma(N),"-", parameters,"  ")
-        
-      )
-    dd <- d %>% dplyr::distinct(model_set, n_p)  %>% dplyr::arrange(desc(model_set) )
-   
-    # custom_lables = levels(d %>% dplyr::select())
-    # max_misfit <- max(d %>% dplyr::select(misfit_value))
-    # max_misfit <- ceiling(max_misfit + .1*max_misfit)
-    g <-  ggplot2::ggplot(d,aes_string(y     = "model_set", 
-                                       x     = "misfit_value",
-                                       shape = "index"
-                                       # color = "sign",
-                                       # fill  = "sign",
-                                       # shape = "model_number"
-                                       ))  
-    g <- g + geom_point(size = baseSize-9)
-    g <- g + scale_x_continuous(labels = scales::comma)
+  # index_name = "BIC"
+  
+  # name of the variable to story prettified index
+  index_pretty <- paste0(index_name,"_pretty")
+  # 
+  d <- x %>% 
+    dplyr::filter(model_type == model_type_) %>% 
+    dplyr::filter(process == process_) %>% 
+    # dplyr::select_(.dots = c())
+    dplyr::distinct(
+      model_name, model_number, wave_set, model_set, model_type, process, N, parameters, AIC, BIC
+    ) %>%
+    # tidyr::gather_(key = "index",value = "misfit_value", c("AIC","BIC")) %>% 
+    dplyr::mutate(
+      # index = factor(index),
+      # counts = paste0("N = ",scales::comma(N),", p = ", parameters)
+      n_p = paste0("  ",scales::comma(N),"-", parameters,"  ")
+      
+    )
+  d[,index_pretty] <- sprintf("%1.0f", d[,index_name])
+  d[,index_pretty] <- scales::comma(as.numeric(d[,index_pretty]))
+  
+  dd <- d %>% dplyr::distinct(model_set, n_p)  %>% dplyr::arrange(desc(model_set) )
+  persons_parameters <- dd$n_p
+  # custom_lables = levels(d %>% dplyr::select())
+  # max_misfit <- max(d %>% dplyr::select(misfit_value))
+  # max_misfit <- ceiling(max_misfit + .1*max_misfit)
+  g <-  ggplot2::ggplot(d,aes_string(y     = "model_set", 
+                                     x     = index_name
+                                     # shape = "index"
+                                     # color = "sign",
+                                     # fill  = "sign",
+                                     # shape = "model_number"
+  ))  
+  # g <- g + geom_point(size = 7, shape = 124)
+  g <- g + scale_x_continuous(labels = scales::comma)
+  # g <- g + geom_text(aes_string(label=index_pretty), size=4, vjust=.5, hjust = -.1)
+  # g <- g + geom_text(aes_string(label=index_pretty), size=4, vjust=0, hjust = 0)
+  g <- g + geom_text(aes_string(label=index_pretty), size=3)
     # g <- g + geom_text(aes(label = counts, x=Inf), hjust=-1)
-    # g <- g + geom_text(aes(label = counts, x=Inf), hjust = .1)
-    g <- g + scale_y_discrete(position = "left", labels = dd$n_p )
-    g <- g + scale_shape_manual(values = c("AIC"=65, "BIC"=66))
-    # g <- g + guides(fill=FALSE, color=FALSE)
-    g <- g + guides(fill=FALSE, color=FALSE, shape = FALSE)
-    g <- g + labs(x = "Information Criteria: (A)kaike & (B)ayesian", y = NULL)
-    g <- g + main_theme
-    # g <- g + theme(legend.position=c(.5,.5)) 
-    # g <- g + theme(legend.background=element_rect(fill="white", colour="black"))
-    g <- g + theme(axis.text.y = element_text(size=baseSize))
-    g
+  # g <- g + geom_text(aes(label = counts, x=Inf), hjust = .1)
+  g <- g + scale_y_discrete(position = "left", labels = persons_parameters )
+  # g <- g + scale_shape_manual(values = c("AIC"=65, "BIC"=66))
+  # g <- g + guides(fill=FALSE, color=FALSE)
+  g <- g + guides(fill=FALSE, color=FALSE, shape = FALSE)
+  g <- g + labs(x = toupper(index_name), y = NULL)
+  g <- g + main_theme
+  # g <- g + theme(legend.position=c(.5,.5)) 
+  # g <- g + theme(legend.background=element_rect(fill="white", colour="black"))
+  g <- g + theme(axis.text.y = element_text(size=baseSize))
+  g
 }   
-# ds_catalog %>% plot_info()
+# ds_catalog %>% plot_info_one()
+
+
+
+# # graph model information (LL, AIC, BIC)
+# offers a number of indices of the name nanuter (misfit)
+# plot_info_general <- function(
+#   x,
+#   model_type_="aefb",  
+#   process_ ="mmse" 
+# ){
+#   # x <- ds_catalog
+#   # model_type_="aefb"
+#   # process_ ="mmse"
+# 
+#    d <- x %>% 
+#       # dplyr::filter(label == label_) %>% 
+#       dplyr::filter(model_type == model_type_) %>% 
+#       dplyr::filter(process == process_) %>% 
+#       dplyr::distinct(
+#         model_name, model_number, wave_set,model_set, model_type, process, N, parameters, AIC, BIC
+#       ) %>%
+#       tidyr::gather_(key = "index",value = "misfit_value", c("AIC","BIC")) %>% 
+#       dplyr::mutate(
+#         index = factor(index),
+#         # counts = paste0("N = ",scales::comma(N),", p = ", parameters)
+#         n_p = paste0("  ",scales::comma(N),"-", parameters,"  ")
+#         
+#       )
+#     dd <- d %>% dplyr::distinct(model_set, n_p)  %>% dplyr::arrange(desc(model_set) )
+#    
+#     # custom_lables = levels(d %>% dplyr::select())
+#     # max_misfit <- max(d %>% dplyr::select(misfit_value))
+#     # max_misfit <- ceiling(max_misfit + .1*max_misfit)
+#     g <-  ggplot2::ggplot(d,aes_string(y     = "model_set", 
+#                                        x     = "misfit_value",
+#                                        shape = "index"
+#                                        # color = "sign",
+#                                        # fill  = "sign",
+#                                        # shape = "model_number"
+#                                        ))  
+#     g <- g + geom_point(size = baseSize-9)
+#     g <- g + scale_x_continuous(labels = scales::comma)
+#     # g <- g + geom_text(aes(label = counts, x=Inf), hjust=-1)
+#     # g <- g + geom_text(aes(label = counts, x=Inf), hjust = .1)
+#     g <- g + scale_y_discrete(position = "left", labels = dd$n_p )
+#     g <- g + scale_shape_manual(values = c("AIC"=65, "BIC"=66))
+#     # g <- g + guides(fill=FALSE, color=FALSE)
+#     g <- g + guides(fill=FALSE, color=FALSE, shape = FALSE)
+#     g <- g + labs(x = "Information Criteria: (A)kaike & (B)ayesian", y = NULL)
+#     g <- g + main_theme
+#     # g <- g + theme(legend.position=c(.5,.5)) 
+#     # g <- g + theme(legend.background=element_rect(fill="white", colour="black"))
+#     g <- g + theme(axis.text.y = element_text(size=baseSize))
+#     g
+# }   
+# # ds_catalog %>% plot_info()
 
 # 
 # levels(ds_catalog$label)
@@ -120,20 +188,21 @@ matrix_coef <- function(
   x,
   term_group,
   model_type,
-  process
+  process,
+  info_index="BIC"
 ){
   # x <- ds_catalog
   # model_type="aefb"
   # process ="mmse"
-  # # term_group = "level"
-  # # term_group = "error"
-  # term_group ="misfit"
+  # # # term_group = "level"
+  # # # term_group = "error"
+  # term_group ="info_index"
   
   terms <- ls_terms[[term_group]]
   lst <- list()
-  if(term_group=="misfit"){
+  if(term_group=="info_index"){
     for(i in seq_along(terms)){
-      lst[[i]] <- x %>% plot_info(model_type,process)
+      lst[[i]] <- x %>% plot_info_one(model_type,process,index_name = ls_terms[["info_index"]])
     }
   }else{
     for(i in seq_along(terms)){
@@ -191,7 +260,7 @@ super_matrix <- function(
   g2 <- matrix_coef(x,"linear",   model_type,process)
   g3 <- matrix_coef(x,"quadratic",model_type,process)
   g4 <- matrix_coef(x,"error",    model_type,process)
-  g5 <- matrix_coef(x,"misfit",   model_type,process) #+ theme(axis.text.y = element_blank())
+  g5 <- matrix_coef(x,"info_index",   model_type,process) #+ theme(axis.text.y = element_blank())
   # g5 <- matrix_coef(x,"misfit",   model_type,process) + theme(strip.text = element_text)
 
   
@@ -208,11 +277,16 @@ super_matrix <- function(
   )
   grid::pushViewport(grid::viewport(layout=layout))
   grid::grid.text(main_title, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2:12),hjust = "1")
-  print(g1, vp=grid::viewport(layout.pos.row=2,layout.pos.col=1:18))
-  print(g2, vp=grid::viewport(layout.pos.row=3,layout.pos.col=1:18))
-  print(g3, vp=grid::viewport(layout.pos.row=4,layout.pos.col=1:18))
-  print(g4, vp=grid::viewport(layout.pos.row=5,layout.pos.col=1:4))
-  print(g5, vp=grid::viewport(layout.pos.row=5,layout.pos.col=5:12))
+  # print(g1, vp=grid::viewport(layout.pos.row=2,layout.pos.col=1:18))
+  # print(g2, vp=grid::viewport(layout.pos.row=3,layout.pos.col=1:18))
+  # print(g3, vp=grid::viewport(layout.pos.row=4,layout.pos.col=1:18))
+  # print(g4, vp=grid::viewport(layout.pos.row=5,layout.pos.col=1:4))
+  # print(g5, vp=grid::viewport(layout.pos.row=5,layout.pos.col=5:12))
+  print(g1, vp=grid::viewport(layout.pos.row=3,layout.pos.col=1:18))
+  print(g2, vp=grid::viewport(layout.pos.row=4,layout.pos.col=1:18))
+  print(g3, vp=grid::viewport(layout.pos.row=5,layout.pos.col=1:18))
+  print(g4, vp=grid::viewport(layout.pos.row=2,layout.pos.col=1:4))
+  print(g5, vp=grid::viewport(layout.pos.row=2,layout.pos.col=5:12))
   
   dev.off() # close PNG device
   # return(grid::popViewport(0))
