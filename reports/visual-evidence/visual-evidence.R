@@ -176,9 +176,9 @@ ls_model_shapes <- list(
 print_figure <- function(x,figure_name, folder){
   # figure_name <- "Figure A"
   # define filter criteria
-  conditions  <- ls_design_conditions[[figure_name]]
-  model_shapes <- ls_model_shapes[[figure_name]]
-  filter_criteria_condition <- lazyeval::interp(~ which_column %in% conditions, which_column = as.name("wave_set"))
+  conditions                 <- ls_design_conditions[[figure_name]]
+  model_shapes               <- ls_model_shapes[[figure_name]]
+  filter_criteria_condition  <- lazyeval::interp(~ which_column %in% conditions, which_column = as.name("wave_set"))
   filter_criteria_modelshape <- lazyeval::interp(~ which_column %in% model_shapes, which_column = as.name("model_number"))
   # print the graph
   super_matrix(
