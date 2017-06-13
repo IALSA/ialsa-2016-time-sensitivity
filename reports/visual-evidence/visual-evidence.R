@@ -101,7 +101,7 @@ ds_catalog <- ds_catalog %>%
   dplyr::mutate( 
     model_set = ifelse(model_number=="u1",paste0("L-",wave_set),
                        ifelse(model_number=="u2",paste0("Q-",wave_set),NA)),
-    model_set = factor(model_set, levels=c(
+    model_set = factor(model_set, levels= c(
       "L-12345","L-1234","L-123",
       "L-1235", "L-1245", "L-1345",
       "L-125",  "L-135", "L-145",
@@ -109,24 +109,27 @@ ds_catalog <- ds_catalog %>%
       "Q-12345","Q-1234","Q-123",
       "Q-1235", "Q-1245","Q-1345",
       "Q-125",  "Q-135", "Q-145"
-    )),
+      )
+    ),
     model_set = factor(model_set, levels = rev(levels(model_set))),
-    label = factor(label,levels = stencil$label),
-    label = factor(label, levels = rev(levels(label))),
-    wave_set = factor(wave_set, levels=c(
+    label     = factor(label,     levels = stencil$label),
+    label     = factor(label,     levels = rev(levels(label))),
+    wave_set  = factor(wave_set,  levels = c(
       "12345","1234","123",
       "1345", "1245","1235",
       "125",  "135", "145"
-    )),
-    wave_set = factor(wave_set,rev(levels(wave_set))),
+      )
+    ),
+    wave_set     = factor(wave_set,rev(levels(wave_set))),
     model_number = factor(model_number,
-                          levels =c("u1","u2"),labels=c("Linear","Quadratic")),
-
-      term = label,
-      estimate = est,
-      conf.low = estimate - 1.96*se,
-      conf.high = estimate + 1.96*se,
-      sign = ifelse(pval<=.05,T,F)
+                          levels = c("u1","u2"),
+                          labels = c("Linear","Quadratic")
+    ),
+    term      = label,
+    estimate  = est,
+    conf.low  = estimate - 1.96*se,
+    conf.high = estimate + 1.96*se,
+    sign      = ifelse(pval<=.05,T,F)
   ) %>% 
   dplyr::filter(!is.na(wave_set))
 # ---- basic-table --------------------------------------------------------------
@@ -134,6 +137,7 @@ ds_catalog <- ds_catalog %>%
 # ----- graphical-settings -------------------------
 
 # ---- basic-graph --------------------------------------------------------------
+# review the data structure: 
 # d <- ds_catalog %>%
 #   dplyr::filter(
 #     # model_number == "u2",
@@ -152,11 +156,11 @@ ds_catalog <- ds_catalog %>%
 ls_design_conditions <- list(
   "Figure A" = c("12345","1234","123" ),
   "Figure B" = c("12345","1235","1245","1345"),
-  "Figure C" = c("12345","125"  ,"135" ,"145"),
-  "Figure D" = c("12345","1235","1345" ,"1245", "125"  ,"135" ,"145"),
-  "Figure E" = c("12345","1235","1345" ,"1245", "125"  ,"135" ,"145"),
-  "Figure F" = c("12345","1234","123","1235","1345" ,"1245", "125"  ,"135" ,"145"),
-  "Figure G" = c("12345","1234","123","1235","1345" ,"1245", "125"  ,"135" ,"145")
+  "Figure C" = c("12345","125" ,"135", "145"),
+  "Figure D" = c("12345","1235","1345","1245","125", "135", "145"),
+  "Figure E" = c("12345","1235","1345","1245","125", "135", "145"),
+  "Figure F" = c("12345","1234","123", "1235","1345","1245","125","135","145"),
+  "Figure G" = c("12345","1234","123", "1235","1345","1245","125","135","145")
 )
 
 ls_model_shapes <- list(
