@@ -97,7 +97,7 @@ selected_items <- c(
 
 ds <- as.data.frame(ds0[ , selected_items])
 
-ds %>% dplyr::glimpse()
+ds %>% dplyr::glimpse(80)
 
 # ---- rename-variables -------------------------------
 
