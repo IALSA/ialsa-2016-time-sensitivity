@@ -1,4 +1,26 @@
 
+# adds neat styling to your knitr table
+neat <- function(x, output_format = "html"){ 
+  # knitr.table.format = output_format
+  if(output_format == "pandoc"){
+    x_t <- knitr::kable(x)
+  }else{
+    x_t <- x %>%
+      # x %>%
+      # knitr::kable() %>%
+      knitr::kable(format=output_format) %>%
+      kableExtra::kable_styling(
+        bootstrap_options = c("striped", "hover", "condensed","responsive"),
+        # bootstrap_options = c( "condensed"),
+        full_width = F,
+        position = "left"
+      )
+  } 
+  return(x_t)
+}
+# ds %>% distinct(id) %>% count() %>% neat(10)
+
+
 numformat <- function(val) { sub("^(-?)0.", "\\1.", sprintf("%.2f", val)) }
 
 # returns a data frame with formated values
