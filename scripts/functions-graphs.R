@@ -421,9 +421,10 @@ plot_trajectories <- function(
   time_var,
   sample_size=100
 ){
-  # d <- ds_long
-  # time_var = "age_at_visit"
-  # sample_size = 100
+  d <- ds_long
+  time_var = "years_since_bl"
+  # time_var = "wave"
+  sample_size = 100
   
   if(!sample_size=="max"){
     set.seed(42)
@@ -433,14 +434,14 @@ plot_trajectories <- function(
   # dd <- d
   g <-  dd %>%  
     # ggplot2::ggplot(aes_string(x="age_at_visit",y="value",color="female")) +
-    ggplot2::ggplot(aes_string(x=time_var,y="value")) +
+    ggplot2::ggplot(aes_string(x=time_var,y="mmse")) +
     geom_line(aes(group=id),size=.9,alpha=.075)+
-    geom_point(size=.8, alpha=.15)+
+    geom_point(size=1.8, alpha=.15, shape =21)+
     # geom_smooth(aes(group=id), method="loess",color="red", size=3 )+
     # geom_smooth(method="lm", color="blue")+
-    geom_smooth(method="loess", color="red",size=.8, fill="yellow", alpha=.7, linetype="solid", na.rm=T, span=1.5)+
-    facet_grid(.~source)+
-    scale_y_continuous(limits = c(-10,40), breaks=seq(-10,40,10))+
+    geom_smooth(method="loess", color="black",size=.8, fill="grey50", alpha=.3, linetype="dashed", na.rm=T, span=1.5)+
+    # facet_grid(.~source)+
+    scale_y_continuous(limits = c(-1,33), breaks=seq(-0,30,10))+
     # scale_y_continuous(limits = c(-10,30), breaks=seq(-10,30,10))+
     # scale_color_manual(values = color_scale)+
     # labs(y="MMSE",x="Time until death", color = group_label)+
