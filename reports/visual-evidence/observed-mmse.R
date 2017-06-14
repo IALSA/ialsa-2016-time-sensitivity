@@ -7,6 +7,7 @@ cat("\f") # clear console
 source("./scripts/functions-graphs.R")
 source("./scripts/functions-tables.R")
 source("./scripts/graph-presets.R") # pre-sets and options for graphing
+source("./scripts/functions-missing.R")
 
 # ---- load-packages -----------------------------------------------------------
 library(magrittr) #Pipes
@@ -25,6 +26,50 @@ ds_wide <- readRDS(path_input)
 
 # ---- inspect-data -------------------------------------------------------------
 ds_wide %>% dplyr::glimpse()
+
+# ---- utility-functions ---------------------------------------------------
+# local to the script
+quick_save <- function(
+  g,            # ggplot object to be saved
+  name,         # name of the file to be saved   
+  width  = 900, # width in pixels  
+  height = 700, # height in pixesl  
+  dpi    = 300  # resolution, dots per inch 
+){
+  ggplot2::ggsave(
+    filename= paste0(name,".png"), 
+    plot=g,
+    device = png,
+    path = "./reports/mmse/prints/",
+    width = width,
+    height = height,
+    # units = "cm",
+    dpi = dpi,
+    limitsize = FALSE
+  )
+}
+# adds neat styling to your knitr table
+neat <- function(x, output_format = "html"){ 
+  # knitr.table.format = output_format
+  if(output_format == "pandoc"){
+    x_t <- knitr::kable(x)
+  }else{
+    x_t <- x %>%
+      # x %>%
+      # knitr::kable() %>%
+      knitr::kable(format=output_format) %>%
+      kableExtra::kable_styling(
+        bootstrap_options = c("striped", "hover", "condensed","responsive"),
+        # bootstrap_options = c( "condensed"),
+        full_width = F,
+        position = "left"
+      )
+  } 
+  return(x_t)
+}
+# ds %>% distinct(id) %>% count() %>% neat(10)
+
+
 # ---- tweak-data --------------------------------------------------------------
 colnames(ds_wide) <- tolower(colnames(ds_wide))
 
@@ -34,7 +79,7 @@ static_variables <-  c("case", "pairid","twinid","female", "compage1",
 dynamic_variables <- setdiff(colnames(ds_wide),static_variables)
 ds_long <- ds_wide %>% 
   tidyr::gather_("variable","value", dynamic_variables) %>% 
-  tibble::as.tibble() %>% 
+  # tibble::as.tibble() %>% 
   dplyr::mutate(
     wave     = gsub("^(\\w+?)_(\\d+)", "\\2", variable) %>% as.integer(),
     variable = gsub("^(\\w+?)_(\\d+)", "\\1", variable)
@@ -66,31 +111,54 @@ ds_long <- ds_wide %>%
     ,years_since_bl
     ,mmse
     # ,dplyr::everything()
-  ) 
+  ) %>% 
+  tibble::as_tibble()
 ds_long %>% dplyr::glimpse()
-ds_long %>% group_by(smoke) %>% count()
+# ds_long %>% group_by(smoke) %>% count()
 
-# ---- utility-functions ---------------------------------------------------
-# local to the script
-quick_save <- function(
-  g,            # ggplot object to be saved
-  name,         # name of the file to be saved   
-  width  = 900, # width in pixels  
-  height = 700, # height in pixesl  
-  dpi    = 300  # resolution, dots per inch 
-){
-  ggplot2::ggsave(
-    filename= paste0(name,".png"), 
-    plot=g,
-    device = png,
-    path = "./reports/mmse/prints/",
-    width = width,
-    height = height,
-    # units = "cm",
-    dpi = dpi,
-    limitsize = FALSE
-  )
-}
+
+# d <- ds_long %>% 
+#   dplyr::select(id, wave, mmse) %>% 
+#   dplyr::arrange(id) %>% 
+#   dplyr::mutate(
+#     wave = paste0("wave_",as.character(wave))
+#   ) 
+# d
+
+# ds_long %>% missing_summary()
+# ds_long %>% show_missing_points(xvar="wave", yvar = "mmse")
+# ds_long %>% show_missing_points(yvar="wave", xvar = "mmse")
+# ds_long %>% expose_missing(pivot = "wave", varname = "mmse")
+# ds_long %>% expose_missing(pivot = "mmse", varname = "wave")
+# ds_long %>% expose_missing(pivot = "age_at_visit", varname = "mmse")
+# ds_long %>% missing_counts_var(print_table = T, sort = T)
+# 
+# ds_long %>% comissing_raster()
+
+d1 <- ds_long %>%   
+  dplyr::select(id, wave, mmse) %>% 
+  dplyr::arrange(id) %>% 
+  dplyr::group_by(id,wave) %>% 
+  dplyr::summarize(
+    # mmse = !is.na(mmse),
+    # mmse = ifelse(is.na(mmse), ".", wave)
+    mmse = ifelse(is.na(mmse), NA, wave)
+  ) %>% 
+  dplyr::mutate(
+    wave = paste0("wave_",as.character(wave))
+  ) %>% 
+  tidyr::spread(wave, mmse) 
+d1[is.na(d1)] <- "."
+d1
+d2 <- d1 %>% 
+  dplyr::mutate(
+    pattern = paste(wave_1, wave_2, wave_3, wave_4, wave_5, sep = "-")
+  ) %>% 
+  dplyr::group_by(wave_1, wave_2, wave_3, wave_4, wave_5, pattern) %>% 
+  dplyr::summarize(n = n()) %>% 
+  dplyr::arrange(desc(wave_1), desc(wave_2), desc(wave_3), desc(wave_4), desc(wave_5))
+d2 %>% neat(output_format = "pandoc")
+
 
 # ---- basic-graph --------------------------------------------------------------
 
@@ -137,7 +205,6 @@ plot_trajectories <- function(
 ds_long %>% plot_trajectories( "years_since_bl","max") %>% 
     quick_save("observed_mmse")
 
-ds_long %>% 
 
 
 
