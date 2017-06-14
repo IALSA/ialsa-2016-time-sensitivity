@@ -168,7 +168,7 @@ ds_mplus %>% dplyr::glimpse()
 
 # ---- save-r-data -------------------
 # tranformed data with supplementary variables
-# saveRDS(ds,paste0(generic_path,"data-long-plus.rds"))
+saveRDS(ds,paste0(generic_path,"data-long-plus.rds"))
 # only variables used in analysis
 saveRDS(ds_wide,paste0(generic_path,"data-wide.rds"))
 # prepared for Mplus
