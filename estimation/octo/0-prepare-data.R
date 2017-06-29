@@ -19,20 +19,21 @@ requireNamespace("reshape2") # data transformations
 requireNamespace("sas7bdat") # for inputing SAS files
 
 # ---- declare-globals ---------------------------------------------------------
-# path_input  <- "./data/unshared/raw/map/ds0.rds"
-# path_input  <- "../OCTO-Twin/data/unshared/raw/octomult_151015.sas7bdat"
-path_input <- "./data/unshared/raw/octo/octomult_151015.rds"
-# put test assert here to check the connection.
-# generic_path <- "./sandbox/pipeline-demo-1/generic-data/"
+# input the file from the ialsa-study-curator
+# see issue on file origin ttps://github.com/IALSA/OCTO-Twin/issues/2
+path_input  <- "../OCTO-Twin/data/unshared/raw/annierobi/octomultnew_portland.sav"
+# store the product of this script here:
 generic_path <- "./data/unshared/derived/octo/"
 
-
+testit::assert("File does not exist", file.exists(path_input))
 # ---- load-data ---------------------------------------------------------------
 # ds0 <- sas7bdat::read.sas7bdat(path_input)
 # saveRDS(ds0,path_input)
-ds0 <- readRDS(path_input)
+# ds0 <- readRDS(path_input)
+ds0 <- haven::read_sav(file = path_input)
+
 # ---- inspect-data -------------------------------------------------------------
-# names_labels(ds0)
+ds0 %>% dplyr::glimpse()
 
 # ds0 %>%
   # dplyr::select(
@@ -59,6 +60,7 @@ varnames_context <- c(
   ,"CVD1"      # cardio vascular disease at baseline
   ,"diabYN1"   # diabetes at baseline
   ,"DemEver"   # dementia ever
+  ,"YTDem"     # years to dementia
   ,"sbp1"      # systolic blood pressure at baseline
 )
 
@@ -121,7 +123,7 @@ names(ds) <- gsub("mirnam","mirnaming_0", names(ds))
 names(ds) <- gsub("mirrcg","mirrecog_0", names(ds))
 names(ds) <- gsub("clock" ,"clock_0", names(ds))
 
-
+ds %>% dplyr::glimpse()
 # ---- center-covariates ---------------------------------
 ds_wide <- ds %>%
   dplyr::mutate(
@@ -151,6 +153,7 @@ ds_wide <- ds %>%
     -TwinID, -Female, -CompAge1,-Smoke, -height1,-DemEver, -Educyrs, -CVD1, -diabYN1, -sbp1
   ) 
 
+ds_wide %>% dplyr::glimpse()
 # ds_wide %>%
 #   dplyr::filter(male ==0) %>%
 #   dplyr::filter( dementia_ever==1) %>%
