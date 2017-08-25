@@ -37,10 +37,12 @@ quick_save <- function(
   dpi    = 300  # resolution, dots per inch 
 ){
   ggplot2::ggsave(
-    filename= paste0(name,".png"), 
     plot=g,
+    # filename= paste0(name,".jpg"), 
+    # device = jpg,
+    filename= paste0(name,".png"),
     device = png,
-    path = "./reports/mmse/prints/",
+    path = "./reports/visual-evidence/",
     width = width,
     height = height,
     # units = "cm",
@@ -92,19 +94,15 @@ ds_long <- ds_wide %>%
     ,mmse
     # ,dplyr::everything()
   ) %>% 
-  tibble::as_tibble()
+  dplyr::arrange(id)
+str(ds_long)
+# make all na the same
+ds_long[is.na(ds_long)] <- NA
+# structure and inspection
+ds_long <- ds_long %>% tibble::as_tibble()
 ds_long %>% dplyr::glimpse()
-# ds_long %>% group_by(smoke) %>% count()
 
-
-# d <- ds_long %>% 
-#   dplyr::select(id, wave, mmse) %>% 
-#   dplyr::arrange(id) %>% 
-#   dplyr::mutate(
-#     wave = paste0("wave_",as.character(wave))
-#   ) 
-# d
-
+# exploration into missingness
 # ds_long %>% missing_summary()
 # ds_long %>% show_missing_points(xvar="wave", yvar = "mmse")
 # ds_long %>% show_missing_points(yvar="wave", xvar = "mmse")
@@ -115,6 +113,9 @@ ds_long %>% dplyr::glimpse()
 # 
 # ds_long %>% comissing_raster()
 
+# ---- tally-response-patterns -----------------
+
+# count frequencies of all distinct patterns of response on MMSE
 d1 <- ds_long %>%   
   dplyr::select(id, wave, mmse) %>% 
   dplyr::arrange(id) %>% 
@@ -128,25 +129,34 @@ d1 <- ds_long %>%
     wave = paste0("wave_",as.character(wave))
   ) %>% 
   tidyr::spread(wave, mmse) 
+# replace all NA by a dot
 d1[is.na(d1)] <- "."
 d1
+# construct the response vector as a character value
 d2 <- d1 %>% 
   dplyr::mutate(
-    pattern = paste(wave_1, wave_2, wave_3, wave_4, wave_5, sep = "-")
-  ) %>% 
-  dplyr::group_by(wave_1, wave_2, wave_3, wave_4, wave_5, pattern) %>% 
-  dplyr::summarize(n = n()) %>% 
+    response_pattern = paste(wave_1, wave_2, wave_3, wave_4, wave_5, sep = "-")
+  ) 
+# compute frequencies of pattern occurence
+d3 <- d2 %>% 
+  dplyr::group_by(wave_1, wave_2, wave_3, wave_4, wave_5, response_pattern) %>% 
+  dplyr::summarize(n_people = n()) %>% 
   dplyr::arrange(desc(wave_1), desc(wave_2), desc(wave_3), desc(wave_4), desc(wave_5))
-d2 %>% neat(output_format = "pandoc")
+# print the table
+d3 %>% neat(output_format = "pandoc")
+# add response pattern to the original data
+ds_long <- ds_long %>% 
+  dplyr::left_join( d2 %>% dplyr::select(id, response_pattern), by = "id")
+rm(list = c("d1","d2","d3"))
 
-
-# ---- basic-graph --------------------------------------------------------------
-
+# ---- graphing-functions --------------------------------------------------------------
+# define simple plot, to be tiled in a matrix
 plot_trajectories <- function(
   d,
   time_var,
   sample_size=100
 ){
+  # dd <- d
   # d <- ds_long
   # time_var = "years_since_bl"
   # # time_var = "wave"
@@ -157,39 +167,75 @@ plot_trajectories <- function(
     ids <- sample(unique(d$id),sample_size)
     dd <- d %>% dplyr::filter(id %in% ids)
   }else{dd <- d}
+  # compute sample size
+  n_people <- length(unique(dd$id))
   # dd <- d
-  g <-  dd %>%  
-    # ggplot2::ggplot(aes_string(x="age_at_visit",y="value",color="female")) +
+  g1 <-  dd %>%  
     ggplot2::ggplot(aes_string(x=time_var,y="mmse")) +
-    geom_smooth(method="loess", color="black",size=1, fill="grey70", alpha=.2, linetype="solid", na.rm=T, span=1.5)+
+    geom_smooth(method="loess", color="black",size=1, fill="black", alpha=.2, linetype="solid", na.rm=T, span=1.5)+
     geom_line(aes(group=id),size=.5,alpha=.06)+
     geom_point(size=2.5, alpha=.4, shape =21)+
     geom_rug(size = 1, sides = "b", alpha = .1)+
-    # geom_smooth(aes(group=id), method="loess",color="red", size=3 )+
-    # geom_smooth(method="lm", color="blue")+
-    # facet_grid(.~source)+
-    scale_y_continuous(limits = c(-.5,30.5), breaks=seq(-0,30,10))+
+    scale_y_continuous(limits = c(-.5,30.5), breaks=seq(-0,30,5))+
     scale_x_continuous(limits = c(0,9), breaks=seq(0,8,2),minor_breaks = seq(0,8,1))+
-    # scale_color_manual(values = color_scale)+
-    # labs(y="MMSE",x="Time until death", color = group_label)+
+    geom_text(x=.2, y=1, label = paste0("N = ",scales::comma(n_people)))+
     main_theme+
     theme(text = element_text(size=baseSize+4)) +
     labs(x = "Years since baseline", y = "Mini Mental State Exam")
-    
-  # print(length(unique(dd$id)))
-    # ggExtra::ggMarginal(g, type="density", xparams = list()
-    ggExtra::ggMarginal(g,margins = "y", type = "histogram", binwidth = 1)
-    # ggExtra::ggMarginal(g, type = "density")
+ return(g1)
 }
-# Usage:
-ds_long %>% plot_trajectories( "years_since_bl","max") %>% 
-    quick_save("observed_mmse")
+# usage demo:
+# ds_long %>% 
+#   plot_trajectories(time_var = "years_since_bl", sample_size = 100) 
 
-
+# define complext plot, matrix of simple views
+matrix_plot <- function(
+   d # ds_long
+){
+  # create a list of plots to facet with ggmatrix
+  ls <- list()
+  patterns <- c("1-2-3-.-.", "1-2-3-4-.", "1-2-3-4-5")
+  for(pat in patterns){
+    ls[[pat]] <- ds_long %>% 
+      dplyr::filter(response_pattern == pat) %>% 
+      plot_trajectories(time_var = "years_since_bl", sample_size = "max") 
+  }
+  # place the plots into a single ggmatrix
+  mplot <- GGally::ggmatrix(
+    ls,
+    ncol = 1, nrow = length(patterns),
+    title = "Observed MMSE scores for three types of response patterns",
+    # yAxisLabels = patterns, 
+    yAxisLabels = c("0-2-4", "0-2-4-6", "0-2-4-6-8"), 
+    xlab = "Years since baseline", ylab = "Mini Mental State Exam (MMSE) Score"
+    # xAxisLabels = "MMSE score",
+    # legend = 1
+  ) + theme(
+    legend.position = "right",
+    strip.text.x = element_text(size=baseSize+2)
+    
+  )
+  mplot
+}
+# usage demo:
+# ds_long %>% matrix_plot()
 
 
 # Sonata form report structure
 # ---- dev-a-0 ---------------------------------
+# print the matrix plot
+g <- ds_long %>% 
+  matrix_plot() 
+
+g %>% 
+  quick_save(
+     name  = "observed-mmse/figure-1"
+    ,width = 800
+    ,height = 1100
+    ,dpi   = 400
+      )
+  
+
 # ---- dev-a-1 ---------------------------------
 # ---- dev-a-2 ---------------------------------
 # ---- dev-a-3 ---------------------------------
