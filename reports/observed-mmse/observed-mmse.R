@@ -32,9 +32,9 @@ ds_wide %>% dplyr::glimpse()
 quick_save <- function(
   g,            # ggplot object to be saved
   name,         # name of the file to be saved   
-  width  = 900, # width in pixels  
-  height = 700, # height in pixesl  
-  dpi    = 300  # resolution, dots per inch 
+  width  = 800, # width in pixels  
+  height = 1100, # height in pixesl  
+  dpi    = 400  # resolution, dots per inch 
 ){
   ggplot2::ggsave(
     plot=g,
@@ -42,7 +42,7 @@ quick_save <- function(
     # device = jpg,
     filename= paste0(name,".png"),
     device = png,
-    path = "./reports/visual-evidence/",
+    path = "./reports/observed-mmse/",
     width = width,
     height = height,
     # units = "cm",
@@ -101,6 +101,7 @@ ds_long[is.na(ds_long)] <- NA
 # structure and inspection
 ds_long <- ds_long %>% tibble::as_tibble()
 ds_long %>% dplyr::glimpse()
+ds_long %>% distinct(id) %>% count()
 
 # exploration into missingness
 # ds_long %>% missing_summary()
@@ -128,10 +129,12 @@ d1 <- ds_long %>%
   dplyr::mutate(
     wave = paste0("wave_",as.character(wave))
   ) %>% 
-  tidyr::spread(wave, mmse) 
+  tidyr::spread(wave, mmse) %>% 
+  as.data.frame()
+d1 %>% distinct(id) %>% count()
 # replace all NA by a dot
 d1[is.na(d1)] <- "."
-d1
+d1 %>% tibble::as_tibble()
 # construct the response vector as a character value
 d2 <- d1 %>% 
   dplyr::mutate(
@@ -144,10 +147,10 @@ d3 <- d2 %>%
   dplyr::arrange(desc(wave_1), desc(wave_2), desc(wave_3), desc(wave_4), desc(wave_5))
 # print the table
 d3 %>% neat(output_format = "pandoc")
-# add response pattern to the original data
+#  augment original data with response pattern
 ds_long <- ds_long %>% 
   dplyr::left_join( d2 %>% dplyr::select(id, response_pattern), by = "id")
-rm(list = c("d1","d2","d3"))
+# rm(list = c("d1","d2","d3"))
 
 # ---- graphing-functions --------------------------------------------------------------
 # define simple plot, to be tiled in a matrix
@@ -190,11 +193,12 @@ plot_trajectories <- function(
 
 # define complext plot, matrix of simple views
 matrix_plot <- function(
-   d # ds_long
+   d, # ds_long
+   patterns
 ){
   # create a list of plots to facet with ggmatrix
   ls <- list()
-  patterns <- c("1-2-3-.-.", "1-2-3-4-.", "1-2-3-4-5")
+  # patterns <- c("1-2-3-.-.", "1-2-3-4-.", "1-2-3-4-5")
   for(pat in patterns){
     ls[[pat]] <- ds_long %>% 
       dplyr::filter(response_pattern == pat) %>% 
@@ -205,8 +209,8 @@ matrix_plot <- function(
     ls,
     ncol = 1, nrow = length(patterns),
     title = "Observed MMSE scores for three types of response patterns",
-    # yAxisLabels = patterns, 
-    yAxisLabels = c("0-2-4", "0-2-4-6", "0-2-4-6-8"), 
+    yAxisLabels = patterns,
+    # yAxisLabels = c("0-2-4", "0-2-4-6", "0-2-4-6-8"), 
     xlab = "Years since baseline", ylab = "Mini Mental State Exam (MMSE) Score"
     # xAxisLabels = "MMSE score",
     # legend = 1
@@ -222,43 +226,37 @@ matrix_plot <- function(
 
 
 # Sonata form report structure
-# ---- dev-a-0 ---------------------------------
+# ---- print-displays ---------------------------------
 # print the matrix plot
 g <- ds_long %>% 
-  matrix_plot() 
+  matrix_plot( patterns = c("1-2-3-.-.", "1-2-3-4-.", "1-2-3-4-5") )
 
 g %>% 
   quick_save(
-     name  = "observed-mmse/figure-1"
-    ,width = 800
-    ,height = 1100
-    ,dpi   = 400
-      )
-  
+    name  = "prints/figure-1"
+  )
 
-# ---- dev-a-1 ---------------------------------
-# ---- dev-a-2 ---------------------------------
-# ---- dev-a-3 ---------------------------------
-# ---- dev-a-4 ---------------------------------
-# ---- dev-a-5 ---------------------------------
+# g <- ds_long %>% 
+#   matrix_plot() 
 
-# ---- dev-b-0 ---------------------------------
-# ---- dev-b-1 ---------------------------------
-# ---- dev-b-2 ---------------------------------
-# ---- dev-b-3 ---------------------------------
-# ---- dev-b-4 ---------------------------------
-# ---- dev-b-5 ---------------------------------
+ds_long %>% 
+  matrix_plot( patterns = c("1-.-.-.-.", "1-2-.-.-.", "1-2-3-4-5") ) %>% 
+  quick_save(
+    name  = "prints/figure-2"
+  )
 
-# ---- recap-0 ---------------------------------
-# ---- recap-1 ---------------------------------
-# ---- recap-2 ---------------------------------
-# ---- recap-3 ---------------------------------
+# ---- place-displays ---------------------------------
+ds_long %>% 
+  matrix_plot( patterns = c("1-2-3-.-.", "1-2-3-4-.", "1-2-3-4-5") ) 
 
+
+ds_long %>% 
+  matrix_plot( patterns = c("1-.-.-.-.", "1-2-.-.-.", "1-2-3-4-5") ) 
 
 # ---- publish ---------------------------------------
-path_report_1 <- "./reports/*/report_1.Rmd"
-path_report_2 <- "./reports/*/report_2.Rmd"
-allReports <- c(path_report_1,path_report_2)
+path_report_1 <- "./reports/observed-mmse/observed-mmse.Rmd"
+
+allReports <- c(path_report_1)
 
 pathFilesToBuild <- c(allReports)
 testit::assert("The knitr Rmd files should exist.", base::file.exists(pathFilesToBuild))
@@ -267,10 +265,10 @@ for( pathFile in pathFilesToBuild ) {
   
   rmarkdown::render(input = pathFile,
                     output_format=c(
-                      # "html_document" # set print_format <- "html" in seed-study.R
+                      "html_document" # set print_format <- "html" in seed-study.R
                       # "pdf_document"
                       # ,"md_document"
-                      "word_document" # set print_format <- "pandoc" in seed-study.R
+                      # "word_document" # set print_format <- "pandoc" in seed-study.R
                     ),
                     clean=TRUE)
 }

@@ -599,6 +599,6 @@ trajectory_supermatrix <- function(
   # return(grid::popViewport(0))
 }
 
-ls_catalog %>% trajectory_supermatrix()
+# ls_catalog %>% trajectory_supermatrix()
 
 
